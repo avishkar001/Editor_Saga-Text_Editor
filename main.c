@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUFFER_SIZE 40
+#define BUFFER_SIZE 4
 #define NODES_SIZE 50
 
 typedef struct lines_node{
