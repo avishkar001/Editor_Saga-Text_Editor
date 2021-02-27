@@ -86,7 +86,6 @@ void insert_in_line(line *l, char* arr, int len){
         index += NODES_SIZE;
     }
     
-    
 }
 
 void print_line(line l){
@@ -129,6 +128,37 @@ void print_buffer(buffer b){
         print_line(b.head_array[(b.head_index + i) % BUFFER_SIZE]);
     }
 
+}
+
+void write_node(FILE *f, lines_node node){
+    //printf("inside print node");
+    for(int i=0; i<NODES_SIZE; i++){
+        if(i==node.gap_left && node.gap_size != 0){
+            i=node.gap_right;
+            continue;
+        }
+        fprintf(f, "%c", node.arr[i]);
+        //if(node.arr[i] == '\n')
+            //return;
+    }
+    return;
+}
+
+void write_line(FILE* f, line l){
+
+    lines_node *p = l.head;
+    while(p){
+        write_node(f, *p);
+        p = p->next;
+    }
+    return;
+}
+
+void write_buffer(FILE* f, buffer b){
+    
+    for(int i=0; i < BUFFER_SIZE; i++){
+        write_line(f, b.head_array[(b.head_index + i) % BUFFER_SIZE]);
+    }
 }
 
 // Function that is used to move the gap  
@@ -217,9 +247,50 @@ void insert_character(line l, int position, char data){
     return;
 }
 
+// TODO delete line if del position is 0
+void backspace(buffer *b, int line_no, int position) {
+	//numbering of line starts from 0
+    //if head is at nonzero position add that offset 
+    lines_node* node = b->head_array[(line_no + b->head_index) % BUFFER_SIZE].head;
+    
+    lines_node *prev_node = NULL;
+	
+	
+	//find node to whic position belongs or last node if position is too big
+    while((NODES_SIZE - node->gap_size) < position) {
+                
+        if(node->next == NULL)       //stop at last node if position is too big
+            break;
+        prev_node = node;
+        node = node->next;
+
+        position -= (NODES_SIZE - node->gap_size);
+    }
+
+	//bring gap buffer at required position
+    if (position < node->gap_left)
+        left(node, position);
+    else if(position > node->gap_right)
+        right(node, position);
+
+	// if left gap boundary is at 0, take previous node
+	if(node->gap_left == 0) {
+		if(prev_node)
+			node = prev_node;
+		else
+			return;
+	}
+	//delete chaaracter by growing gap
+	node->gap_left--;
+	node->gap_size++;
+	return;
+}
+
+
 int main(){
 
     FILE* fptr = fopen("file.txt", "r");
+    //FILE* fprev = fopen("fprev.txt", "w+");
     buffer b;
     init_buffer(b);
     read_file_firsttime(fptr, &b);
@@ -227,8 +298,12 @@ int main(){
     printf("-----------------------------------------\n");
     int position = 7;
     move_cursor(b.head_array[0].head, position);
-    insert_character(b.head_array[0], position, 'g');
+    insert_character(b.head_array[0], position - 1, 'g');
     print_buffer(b);
+    printf("-----------------------------------------\n");
+    backspace(&b,0 ,position);
+    print_buffer(b);
+    //write_buffer(fprev, b);
 
     return 0;
 }
