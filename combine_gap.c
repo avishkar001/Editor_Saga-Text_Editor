@@ -5,6 +5,7 @@
 #define BUFFER_SIZE 4
 #define NODES_SIZE 50
 #define DEFAULT_GAP_SIZE 10
+#define WINDOWS 1
 
 typedef struct lines_node{
     char* arr;
@@ -73,7 +74,7 @@ void insert_in_line(line *l, char* arr, int len){
         lines_node* new = (lines_node*)malloc(sizeof(lines_node));
         init_lines_node(new);
         strncpy(new->arr, &arr[index], NODES_SIZE - DEFAULT_GAP_SIZE);
-        if(len>NODES_SIZE)
+        if(len>NODES_SIZE - DEFAULT_GAP_SIZE)
             load_fullnode(new);
         else{
             new->gap_left = len;
@@ -82,8 +83,8 @@ void insert_in_line(line *l, char* arr, int len){
         }
 
         append_in_line(l, new);
-        len -= NODES_SIZE;
-        index += NODES_SIZE;
+        len -= NODES_SIZE - DEFAULT_GAP_SIZE;
+        index += NODES_SIZE - DEFAULT_GAP_SIZE;
     }
     
 }
@@ -103,8 +104,8 @@ typedef struct buffer{
     int head_index;
 }buffer;
 
-void init_buffer(buffer b){
-    b.head_index = 0;
+void init_buffer(buffer *b){
+    b->head_index = 0;
 }
 
 void read_file_firsttime(FILE* fptr, buffer* b){
@@ -120,6 +121,7 @@ void read_file_firsttime(FILE* fptr, buffer* b){
         insert_in_line(newline, data, len);
         b->head_array[(b->head_index + i) % BUFFER_SIZE] = *newline;
     }
+    return;
 }
 
 void print_buffer(buffer b){
@@ -286,16 +288,144 @@ void backspace(buffer *b, int line_no, int position) {
 	return;
 }
 
+void destroy_line(line* l){
 
+    lines_node *p = l->head, *q = NULL;
+
+    while(p){
+        q = p;
+        p = p->next;
+        free(q->arr);
+        free(q);
+    }
+    l->head = NULL;
+    return;
+}
+
+
+
+void load_next_line(buffer *b, FILE *fprev, FILE *fnext, FILE *fmain) {	
+	char ch;
+	int fnext_flag = 0;     //flag showing whether line is to be loaded from fnext file
+	if(fseek(fnext, -1, SEEK_CUR) != -1) {          //check if file has line
+		fseek(fnext, 1, SEEK_CUR);                  //restore file pointer
+		fnext_flag = 1;
+        //printf("debug\n");
+	}
+	else if((ch = fgetc(fmain)) == -1){
+		//return if file is empty
+		return;
+	}
+    ungetc(ch, fmain);
+
+    /*write first line to tmp file*/
+    if (b->head_array[b->head_index].head != NULL) 
+        write_line(fprev, b->head_array[b->head_index]);
+    else
+        return;
+
+	destroy_line(&b->head_array[b->head_index]);	//TODO: try to do without destroying
+
+	char c = ' ';
+    unsigned long position;
+    fseek(fnext, -1, SEEK_CUR);
+    if (fnext_flag){
+
+        if (WINDOWS)
+            fseek(fnext, -1, SEEK_CUR);
+        //find start of line
+        while(c != '\n'){
+            if (fseek(fnext, -2, SEEK_CUR) == -1){
+                fseek(fnext, 0, SEEK_SET);             //if file has only 1 line
+                break;
+            }
+            c = fgetc(fnext);
+        }
+        //fflush(fp);
+        position = ftell(fnext);
+    }
+
+    /*TODO:try to write a function to read line from file, make code more modular */
+    int len = 50;
+    char *data = (char *)malloc(sizeof(char) * len);
+    if(fnext_flag)
+        len = getline(&data, &len, fnext);
+    else
+        len = getline(&data, &len, fmain);
+    
+    line *newline = (line *)malloc(sizeof(line));
+    init_line(newline);
+    insert_in_line(newline, data, len);
+    b->head_array[b->head_index] = *newline;
+
+    /*after reading a line, set file pointer to beginning indicating line is deleted */
+    if(fnext_flag)
+        fseek(fnext, position, SEEK_SET);          
+        
+    b->head_index = (b->head_index + 1) % BUFFER_SIZE;        //change start position of cicular array
+
+	return;
+}
+
+
+void load_prev_line(buffer *b, FILE *fprev, FILE *fnext) {
+	// check if line is present in fprev file
+	if(fseek(fprev, -1, SEEK_CUR) != -1)	
+		fseek(fprev, 1, SEEK_CUR);
+	else
+        return;            //line not present to load previous line
+
+	b->head_index = (b->head_index - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+
+    if (b->head_array[b->head_index].head != NULL)          //if last line is present store it
+        write_line(fnext, b->head_array[b->head_index]);
+
+    destroy_line(&b->head_array[b->head_index]); // TODO: try to do without free
+
+    char c = ' ';
+    unsigned long position;
+    if(WINDOWS)              //because newline character is diff in linux and windows
+        fseek(fprev, -1, SEEK_CUR);
+    
+    while (c != '\n'){
+        //printf("debugging\n");
+        if (fseek(fprev, -2, SEEK_CUR) == -1){
+            fseek(fprev, 0, SEEK_SET);  //if file has only 1 line, go to starting position
+            break;
+        }
+        c = fgetc(fprev);
+    }
+    //fflush(fprev);
+    position = ftell(fprev);
+
+    /*TODO:try to write a function to read line from file, make code more modular */
+    int len = 50;
+    char *data = (char *)malloc(sizeof(char) * len);
+    len = getline(&data, &len, fprev);
+    line *newline = (line *)malloc(sizeof(line));
+    init_line(newline);
+    insert_in_line(newline, data, len);
+    b->head_array[b->head_index] = *newline;
+
+    /*after reading a line, set file pointer to beginning indicating line is deleted */
+    fseek(fprev, position, SEEK_SET);
+	return;
+}
+
+//TODO:handle EOF character
 int main(){
 
     FILE* fptr = fopen("file.txt", "r");
-    //FILE* fprev = fopen("fprev.txt", "w+");
+    FILE* fprev = fopen("fprev.txt", "w+");
+    FILE* fnext = fopen("fnext.txt", "w+");
+    
     buffer b;
-    init_buffer(b);
+    init_buffer(&b);
+    
     read_file_firsttime(fptr, &b);
     print_buffer(b);
     printf("-----------------------------------------\n");
+    /*
     int position = 7;
     move_cursor(b.head_array[0].head, position);
     insert_character(b.head_array[0], position - 1, 'g');
@@ -303,8 +433,74 @@ int main(){
     printf("-----------------------------------------\n");
     backspace(&b,0 ,position);
     print_buffer(b);
+    
     //write_buffer(fprev, b);
+  
+    int len = 1;
+    char *data = (char *)malloc(sizeof(char) * len);
+    len = getline(&data, &len, fprev);
+    printf("88\n%s", data);
+*/  
+    
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+    
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
 
+    
+    load_prev_line(&b, fprev, fnext);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+    load_prev_line(&b, fprev, fnext);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+
+    
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+/*
+    printf("%ld", ftell(fprev));
+    fseek(fprev, -2, SEEK_CUR);
+    printf("%ld", ftell(fprev));
+    printf("a%da", fgetc(fprev));
+    printf("%ld", ftell(fprev));
+
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+    load_prev_line(&b, fprev, fnext);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+
+    
+
+
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+ 
+
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+  printf("-----------------------------------------\n");
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+    load_next_line(&b, fprev, fnext, fptr);
+    print_buffer(b);
+    printf("-----------------------------------------\n");
+
+*/
     return 0;
 }
 

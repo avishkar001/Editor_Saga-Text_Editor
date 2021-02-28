@@ -1,15 +1,8 @@
-A communications satellite is an artificial satellite that relays and amplifies radio telecommunications signals via a
-transponder;
-it creates a communication channel between a source transmitter and a receiver at different locations on Earth.
-Communications satellites are used for television, telephone, radio, internet, and military applications.
-There are over 2,000
-communications satellites in Earth’s orbit, used by both private and government organizations.
-Satellite Communication utilization has become wide spread and ubiquitous throughout the country for such diverse
-applications like Television, DTH Broadcasting, DSNG and VSAT to exploit the unique capabilities in terms of coverage and
-outreach.
-The technology has matured substantially over past three decades and is being used on commercial basis for a large
-number of applications. Most of us are touched by satellite communication in more ways than we realize.
-The potential of the technology for societal applications continue to fascinate ISRO and efforts are on to leverage the
-benefits of technology to the betterment of mankind. Important initiatives pursued by ISRO towards societal development
-include Tele-education, Tele-medicine, Village Resource Centre (VRC) and Disaster Management System (DMS) Programmes.
-The potential of the space technology for applications of national development is enormous.
+abc
+bbb
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ddddddddddd
+eeeeeeeeeeeeeeeeeeeeeee
+fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+g
+hhhhhhhhhhhhhhhhhhhhhh
