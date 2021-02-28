@@ -45,12 +45,12 @@ void print_node(lines_node node){
 
 typedef struct line{
     lines_node* head;
-    //int line_size;
+    int line_size;
 } line;
 
 void init_line(line* l){
     l->head = NULL;
-    //line_size = 0;
+    l->line_size = 0;
 }
 
 void append_in_line(line *l, lines_node *new){
@@ -89,6 +89,16 @@ void insert_in_line(line *l, char* arr, int len){
     
 }
 
+void set_line_size(line* l){
+    lines_node* p = l->head;
+
+    while (p){    
+        l->line_size += NODES_SIZE - p->gap_size;
+        p = p->next;
+    }
+    return;
+}
+
 void print_line(line l){
 
     lines_node *p = l.head;
@@ -119,6 +129,7 @@ void read_file_firsttime(FILE* fptr, buffer* b){
         line* newline = (line*)malloc(sizeof(line));
         init_line(newline);
         insert_in_line(newline, data, len);
+        set_line_size(newline);
         b->head_array[(b->head_index + i) % BUFFER_SIZE] = *newline;
     }
     return;
@@ -220,9 +231,9 @@ lines_node* move_cursor(lines_node* node, int position){
     return node;
 }
 
-void insert_character(line l, int position, char data){
+void insert_character(line *l, int position, char data){
 
-    lines_node* node = move_cursor(l.head, position);
+    lines_node* node = move_cursor(l->head, position);
 
     if(node->gap_size == 0){
         lines_node* newnode = (lines_node*)malloc(sizeof(lines_node*));
@@ -246,6 +257,8 @@ void insert_character(line l, int position, char data){
     }
     node->arr[node->gap_left++] = data;
     node->gap_size--;
+    l->line_size++;
+
     return;
 }
 
@@ -285,6 +298,7 @@ void backspace(buffer *b, int line_no, int position) {
 	//delete chaaracter by growing gap
 	node->gap_left--;
 	node->gap_size++;
+    b->head_array[(line_no + b->head_index) % BUFFER_SIZE].line_size--;
 	return;
 }
 
@@ -299,6 +313,7 @@ void destroy_line(line* l){
         free(q);
     }
     l->head = NULL;
+    l->line_size = 0;
     return;
 }
 
@@ -356,6 +371,10 @@ void load_next_line(buffer *b, FILE *fprev, FILE *fnext, FILE *fmain) {
     line *newline = (line *)malloc(sizeof(line));
     init_line(newline);
     insert_in_line(newline, data, len);
+    
+    printf("hi%d", newline->line_size);
+    set_line_size(newline);
+    printf("hi%d", newline->line_size);
     b->head_array[b->head_index] = *newline;
 
     /*after reading a line, set file pointer to beginning indicating line is deleted */
@@ -405,6 +424,7 @@ void load_prev_line(buffer *b, FILE *fprev, FILE *fnext) {
     line *newline = (line *)malloc(sizeof(line));
     init_line(newline);
     insert_in_line(newline, data, len);
+    set_line_size(newline);
     b->head_array[b->head_index] = *newline;
 
     /*after reading a line, set file pointer to beginning indicating line is deleted */
@@ -425,21 +445,35 @@ int main(){
     read_file_firsttime(fptr, &b);
     print_buffer(b);
     printf("-----------------------------------------\n");
-    /*
+
+    for(int i = b.head_index; i<BUFFER_SIZE; i++){
+        printf("%d\n", b.head_array[i].line_size);
+    }
+/*
     int position = 7;
     move_cursor(b.head_array[0].head, position);
-    insert_character(b.head_array[0], position - 1, 'g');
+    insert_character(&b.head_array[0], position - 1, 'g');
     print_buffer(b);
+    for(int i = 0; i<BUFFER_SIZE; i++){
+        printf("%d\n", b.head_array[(i + b.head_index) % BUFFER_SIZE].line_size);
+    }
     printf("-----------------------------------------\n");
     backspace(&b,0 ,position);
     print_buffer(b);
+    for(int i = 0; i<BUFFER_SIZE; i++){
+        printf("%d\n", b.head_array[(i + b.head_index) % BUFFER_SIZE].line_size);
+    }
     
     //write_buffer(fprev, b);
-  
+ 
     int len = 1;
     char *data = (char *)malloc(sizeof(char) * len);
     len = getline(&data, &len, fprev);
     printf("88\n%s", data);
+
+    for(int i = 0; i<BUFFER_SIZE; i++){
+        printf("%d\n", b.head_array[(i + b.head_index) % BUFFER_SIZE].line_size);
+    }
 */  
     
     load_next_line(&b, fprev, fnext, fptr);
@@ -449,7 +483,7 @@ int main(){
     load_next_line(&b, fprev, fnext, fptr);
     print_buffer(b);
     printf("-----------------------------------------\n");
-
+    
     
     load_prev_line(&b, fprev, fnext);
     print_buffer(b);
