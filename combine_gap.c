@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
 
 #define BUFFER_SIZE 4
 #define NODES_SIZE 50
@@ -432,6 +433,39 @@ void load_prev_line(buffer *b, FILE *fprev, FILE *fnext) {
 	return;
 }
 
+
+void print_loc(int x, int y) {
+        move(20, 20);
+        mvprintw(10, 30, "x: %d y: %d", x, y);
+}
+
+
+void print_page(buffer b){
+    for(int i=0; i < BUFFER_SIZE; i++){
+        print_line(b.head_array[(b.head_index + i) % BUFFER_SIZE], i);
+    }
+}
+
+void print_line(line l, int line_num){
+
+    lines_node *p = l.head;
+    int col_num = 0;
+
+    move(i, 0);
+    clrtoeol();
+    while(p){
+        for(int i=0; i<NODES_SIZE; i++){
+            if(i==node.gap_left && node.gap_size != 0){
+                i=node.gap_right;
+                continue;
+            }
+            mvaddch(line_num, col_num,node.arr[i]);
+        }
+        p = p->next;
+    }
+    return;
+}
+
 //TODO:handle EOF character
 int main(){
 
@@ -489,7 +523,7 @@ int main(){
     print_buffer(b);
     printf("-----------------------------------------\n");
     load_prev_line(&b, fprev, fnext);
-    print_buffer(b);
+    print_buffer(b); 
     printf("-----------------------------------------\n");
 
     
@@ -535,6 +569,64 @@ int main(){
     printf("-----------------------------------------\n");
 
 */
+
+    // curses interface
+    initscr();
+    noecho();
+    keypad(stdscr, true);
+
+    int ch;
+    int line_no = 0, col_no = 0;
+
+    print_page(b);
+    print_loc(line_no, col_no);
+    move(line_no, col_no);
+    while (1){
+        ch = getch();
+        switch (ch){
+            case 'q':
+                endwin();
+                return 0;
+
+            case KEY_LEFT:
+                if (col_no)
+                    col_no--;
+                break;
+
+            case KEY_RIGHT:
+                //if (col_no < (window_1.head)[head_index(window_1, line_no)].line_size)
+                if(col_no < b.head_array[(line_no + b.head_index) % BUFFER_SIZE].line_size)
+                    col_no++;
+                break;
+
+            case KEY_DOWN:
+                //if (line_no < window_1.tot_lines - 1)
+                if(line_no < BUFFER_SIZE - 1){
+                    line_no++;
+                else
+                    load_next_line(&b, fprev, fnext, fptr);
+
+                //if (col_no > (window_1.head)[h_indx].line_size)
+                    //col_no = (window_1.head)[h_indx].line_size;
+                if(col_no > b.head_array[(line_no + b.head_index) % BUFFER_SIZE].line_size)
+                    col_no = b.head_array[(line_no + b.head_index) % BUFFER_SIZE].line_size;
+                break;
+
+            case KEY_UP:
+                if (line_no > 0)
+                    line_no--;
+                else
+                    load_prev_line(&b, fprev, fnext);
+
+                if (col_no > (window_1.head)[h_indx].line_size)
+                    col_no = (window_1.head)[h_indx].line_size;
+            default:
+                break;
+            }
+            print_page(b);
+            print_loc(line_no, col_no);
+            move(line_no, col_no);
+    }
     return 0;
 }
 
