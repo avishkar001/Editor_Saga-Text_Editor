@@ -11,28 +11,3 @@ hhhhhhhhhhhhhhhhhhhhhh
 
 This page lists pending and open tasks being considered or worked upon
 by the OpenOCD community.
-
-@section thelist The List
-
-Most items are open for the taking, but please post to the mailing list
-before spending much time working on anything lists here.  The community
-may have evolved an idea since it was added here.
-
-Feel free to send patches to add or clarify items on this list, too.
-
-@section thelisttcl TCL
-
-This section provides possible things to improve with OpenOCD's TCL support.
-- Fix problem with incorrect line numbers reported for a syntax
-  error in a reset init event.
-- organize the TCL configurations:
-  - provide more directory structure for boards/targets?
-  - factor configurations into layers (encapsulation and re-use)
-- Fix handling of variables between multiple command line "-c" and "-f"
-  parameters.  Currently variables assigned through one such parameter
-  command/script are unset before the next one is invoked.
-- Isolate all TCL command support:
-  - Pure C CLI implementations using --disable-builtin-tcl.
-    - Allow developers to build new dongles using OpenOCD's JTAG core.
-    - At first, provide only low-level JTAG support; target layer and
-      above rely heavily on scripting event mechanisms.

@@ -1,0 +1,87 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BUFFER_SIZE	combine_gap.c	6;"	d	file:
+BUFFER_SIZE	main.c	5;"	d	file:
+DEFAULT_GAP_SIZE	combine_gap.c	8;"	d	file:
+NODES_SIZE	combine_gap.c	7;"	d	file:
+NODES_SIZE	gap.c	2;"	d	file:
+NODES_SIZE	main.c	6;"	d	file:
+WINDOWS	combine_gap.c	9;"	d	file:
+append_in_line	combine_gap.c	/^void append_in_line(line *l, lines_node *new){$/;"	f
+append_in_line	main.c	/^void append_in_line(line *l, lines_node *new){$/;"	f
+arr	combine_gap.c	/^    char* arr;$/;"	m	struct:lines_node	file:
+arr	gap.c	/^    char* arr;$/;"	m	struct:lines_node	file:
+arr	main.c	/^    char* arr;$/;"	m	struct:lines_node	file:
+backspace	combine_gap.c	/^void backspace(buffer *b, int line_no, int position) {$/;"	f
+buffer	combine_gap.c	/^typedef struct buffer{$/;"	s	file:
+buffer	combine_gap.c	/^}buffer;$/;"	t	typeref:struct:buffer	file:
+buffer	main.c	/^typedef struct buffer{$/;"	s	file:
+buffer	main.c	/^}buffer;$/;"	t	typeref:struct:buffer	file:
+delete_character	gap.c	/^void delete_character(line l, int position, char data){$/;"	f
+destroy_line	combine_gap.c	/^void destroy_line(line* l){$/;"	f
+gap_left	combine_gap.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
+gap_left	gap.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
+gap_right	combine_gap.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
+gap_right	gap.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
+gap_size	combine_gap.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
+gap_size	gap.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
+head	combine_gap.c	/^    lines_node* head;$/;"	m	struct:line	file:
+head_array	combine_gap.c	/^    line head_array[BUFFER_SIZE];$/;"	m	struct:buffer	file:
+head_array	main.c	/^    line head_array[BUFFER_SIZE];$/;"	m	struct:buffer	file:
+head_index	combine_gap.c	/^    int head_index;$/;"	m	struct:buffer	file:
+head_index	main.c	/^    int head_index;$/;"	m	struct:buffer	file:
+init_buffer	combine_gap.c	/^void init_buffer(buffer *b){$/;"	f
+init_buffer	main.c	/^void init_buffer(buffer b){$/;"	f
+init_line	combine_gap.c	/^void init_line(line* l){$/;"	f
+init_line	main.c	/^void init_line(line* l){$/;"	f
+init_lines_node	combine_gap.c	/^void init_lines_node(lines_node* l){$/;"	f
+init_lines_node	gap.c	/^void init_lines_node(lines_node* l){$/;"	f
+init_lines_node	main.c	/^void init_lines_node(lines_node* l){$/;"	f
+insert_character	combine_gap.c	/^void insert_character(line *l, int position, char data){$/;"	f
+insert_character	gap.c	/^void insert_character(line l, int position, char data){$/;"	f
+insert_in_line	combine_gap.c	/^void insert_in_line(line *l, char* arr, int len){$/;"	f
+insert_in_line	main.c	/^void insert_in_line(line *l, char* arr, int len){$/;"	f
+left	combine_gap.c	/^void left(lines_node* node, int position)  $/;"	f
+left	gap.c	/^void left(lines_node* node, int position)  $/;"	f
+line	combine_gap.c	/^typedef struct line{$/;"	s	file:
+line	combine_gap.c	/^} line;$/;"	t	typeref:struct:line	file:
+line	gap.c	/^typedef lines_node* line;$/;"	t	file:
+line	main.c	/^typedef lines_node* line;$/;"	t	file:
+line_size	combine_gap.c	/^    int line_size;$/;"	m	struct:line	file:
+lines_node	combine_gap.c	/^typedef struct lines_node{$/;"	s	file:
+lines_node	combine_gap.c	/^}lines_node;$/;"	t	typeref:struct:lines_node	file:
+lines_node	gap.c	/^typedef struct lines_node{$/;"	s	file:
+lines_node	gap.c	/^}lines_node;$/;"	t	typeref:struct:lines_node	file:
+lines_node	main.c	/^typedef struct lines_node{$/;"	s	file:
+lines_node	main.c	/^}lines_node;$/;"	t	typeref:struct:lines_node	file:
+load_fullnode	combine_gap.c	/^void load_fullnode(lines_node* l){$/;"	f
+load_next_line	combine_gap.c	/^void load_next_line(buffer *b, FILE *fprev, FILE *fnext, FILE *fmain) {	$/;"	f
+load_prev_line	combine_gap.c	/^void load_prev_line(buffer *b, FILE *fprev, FILE *fnext) {$/;"	f
+main	combine_gap.c	/^int main(){$/;"	f
+main	main.c	/^int main(){$/;"	f
+move_cursor	combine_gap.c	/^lines_node* move_cursor(lines_node* node, int position){$/;"	f
+move_cursor	gap.c	/^lines_node* move_cursor(lines_node* node, int position){$/;"	f
+next	combine_gap.c	/^    struct lines_node *next;$/;"	m	struct:lines_node	typeref:struct:lines_node::lines_node	file:
+next	gap.c	/^    struct lines_node *next;$/;"	m	struct:lines_node	typeref:struct:lines_node::lines_node	file:
+next	main.c	/^    struct lines_node *next;$/;"	m	struct:lines_node	typeref:struct:lines_node::lines_node	file:
+print_buffer	combine_gap.c	/^void print_buffer(buffer b){$/;"	f
+print_buffer	main.c	/^void print_buffer(buffer b){$/;"	f
+print_line	combine_gap.c	/^void print_line(line l){$/;"	f
+print_line	main.c	/^void print_line(line l){$/;"	f
+print_line_ncurses	combine_gap.c	/^void print_line_ncurses(line l, int line_num){$/;"	f
+print_loc	combine_gap.c	/^void print_loc(int x, int y) {$/;"	f
+print_node	combine_gap.c	/^void print_node(lines_node node){$/;"	f
+print_node	main.c	/^void print_node(lines_node node){$/;"	f
+print_page_ncurses	combine_gap.c	/^void print_page_ncurses(buffer b){$/;"	f
+read_file_firsttime	combine_gap.c	/^void read_file_firsttime(FILE* fptr, buffer* b){$/;"	f
+read_file_firsttime	main.c	/^void read_file_firsttime(FILE* fptr, buffer* b){$/;"	f
+right	combine_gap.c	/^void right(lines_node* node, int position)  $/;"	f
+right	gap.c	/^void right(lines_node* node, int position)  $/;"	f
+set_line_size	combine_gap.c	/^void set_line_size(line* l){$/;"	f
+write_buffer	combine_gap.c	/^void write_buffer(FILE* f, buffer b){$/;"	f
+write_line	combine_gap.c	/^void write_line(FILE* f, line l){$/;"	f
+write_node	combine_gap.c	/^void write_node(FILE *f, lines_node node){$/;"	f
