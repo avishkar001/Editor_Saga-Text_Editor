@@ -111,35 +111,42 @@ void print_line(line l){
 }
 
 typedef struct buffer{
-    line head_array[BUFFER_SIZE];
+    line *head_array;
     int head_index;
+    int size;
+    FILE *fptr, *fprev, *fnext;
 }buffer;
 
-void init_buffer(buffer *b){
+void init_buffer(buffer *b, int size, char* filename){
     b->head_index = 0;
+    b->head_array = (line*)malloc(sizeof(line)*size);
+    b->size = size;
+    b->fptr = fopen(filename, "r");
+    b->fprev = fopen("fprev.txt", "w+");
+    b->fnext = fopen("fprev.txt", "w+"); 
 }
 
-void read_file_firsttime(FILE* fptr, buffer* b){
+void read_file_firsttime(buffer* b){
 
     size_t len;
 
-    for(int i=0; i<BUFFER_SIZE; i++){
+    for(int i=0; i<b->size; i++){
         len = 50;
         char* data = (char*)malloc(sizeof(char)*len);
-        len = getline(&data, &len, fptr);
+        len = getline(&data, &len, b->fptr);
         line* newline = (line*)malloc(sizeof(line));
         init_line(newline);
         insert_in_line(newline, data, len);
         set_line_size(newline);
-        b->head_array[(b->head_index + i) % BUFFER_SIZE] = *newline;
+        b->head_array[(b->head_index + i) % b->size] = *newline;
     }
     return;
 }
 
 void print_buffer(buffer b){
     
-    for(int i=0; i < BUFFER_SIZE; i++){
-        print_line(b.head_array[(b.head_index + i) % BUFFER_SIZE]);
+    for(int i=0; i < b.size; i++){
+        print_line(b.head_array[(b.head_index + i) % b.size]);
     }
 
 }
@@ -170,8 +177,8 @@ void write_line(FILE* f, line l){
 
 void write_buffer(FILE* f, buffer b){
     
-    for(int i=0; i < BUFFER_SIZE; i++){
-        write_line(f, b.head_array[(b.head_index + i) % BUFFER_SIZE]);
+    for(int i=0; i < b.size; i++){
+        write_line(f, b.head_array[(b.head_index + i) % b.size]);
     }
 }
 
@@ -267,21 +274,18 @@ void insert_character(line *l, int position, char data){
 void backspace(buffer *b, int line_no, int position) {
 	//numbering of line starts from 0
     //if head is at nonzero position add that offset 
-    lines_node* node = b->head_array[(line_no + b->head_index) % BUFFER_SIZE].head;
-    
-    lines_node *prev_node = NULL;
+    lines_node* node = b->head_array[(line_no + b->head_index) % b->size].head;
 	
+	lines_node* prev_node = NULL;
 	
 	//find node to whic position belongs or last node if position is too big
     while((NODES_SIZE - node->gap_size) < position) {
                 
         if(node->next == NULL)       //stop at last node if position is too big
             break;
-        prev_node = node;
-        
+           prev_node = node;
         position -= (NODES_SIZE - node->gap_size);
         node = node->next;
-
     }
 
 	//bring gap buffer at required position
@@ -300,7 +304,7 @@ void backspace(buffer *b, int line_no, int position) {
 	//delete chaaracter by growing gap
 	node->gap_left--;
 	node->gap_size++;
-    b->head_array[(line_no + b->head_index) % BUFFER_SIZE].line_size--;
+    b->head_array[(line_no + b->head_index) % b->size].line_size--;
 	return;
 }
 
@@ -321,23 +325,23 @@ void destroy_line(line* l){
 
 
 
-void load_next_line(buffer *b, FILE *fprev, FILE *fnext, FILE *fmain) {	
+void load_next_line(buffer *b) {	
 	char ch;
 	int fnext_flag = 0;     //flag showing whether line is to be loaded from fnext file
-	if(fseek(fnext, -1, SEEK_CUR) != -1) {          //check if file has line
-		fseek(fnext, 1, SEEK_CUR);                  //restore file pointer
+	if(fseek(b->fnext, -1, SEEK_CUR) != -1) {          //check if file has line
+		fseek(b->fnext, 1, SEEK_CUR);                  //restore file pointer
 		fnext_flag = 1;
         //printf("debug\n");
 	}
-	else if((ch = fgetc(fmain)) == -1){
+	else if((ch = fgetc(b->fptr)) == -1){
 		//return if file is empty
 		return;
 	}
-    ungetc(ch, fmain);
+    ungetc(ch, b->fptr);
 
     /*write first line to tmp file*/
     if (b->head_array[b->head_index].head != NULL) 
-        write_line(fprev, b->head_array[b->head_index]);
+        write_line(b->fprev, b->head_array[b->head_index]);
     else
         return;
 
@@ -345,30 +349,30 @@ void load_next_line(buffer *b, FILE *fprev, FILE *fnext, FILE *fmain) {
 
 	char c = ' ';
     unsigned long position;
-    fseek(fnext, -1, SEEK_CUR);
+    fseek(b->fnext, -1, SEEK_CUR);
     if (fnext_flag){
 
         if (WINDOWS)
-            fseek(fnext, -1, SEEK_CUR);
+            fseek(b->fnext, -1, SEEK_CUR);
         //find start of line
         while(c != '\n'){
-            if (fseek(fnext, -2, SEEK_CUR) == -1){
-                fseek(fnext, 0, SEEK_SET);             //if file has only 1 line
+            if (fseek(b->fnext, -2, SEEK_CUR) == -1){
+                fseek(b->fnext, 0, SEEK_SET);             //if file has only 1 line
                 break;
             }
-            c = fgetc(fnext);
+            c = fgetc(b->fnext);
         }
         //fflush(fp);
-        position = ftell(fnext);
+        position = ftell(b->fnext);
     }
 
     /*TODO:try to write a function to read line from file, make code more modular */
     size_t len = 50;
     char *data = (char *)malloc(sizeof(char) * len);
     if(fnext_flag)
-        len = getline(&data, &len, fnext);
+        len = getline(&data, &len, b->fnext);
     else
-        len = getline(&data, &len, fmain);
+        len = getline(&data, &len, b->fptr);
     
     line *newline = (line *)malloc(sizeof(line));
     init_line(newline);
@@ -380,48 +384,48 @@ void load_next_line(buffer *b, FILE *fprev, FILE *fnext, FILE *fmain) {
 
     /*after reading a line, set file pointer to beginning indicating line is deleted */
     if(fnext_flag)
-        fseek(fnext, position, SEEK_SET);          
+        fseek(b->fnext, position, SEEK_SET);          
         
-    b->head_index = (b->head_index + 1) % BUFFER_SIZE;        //change start position of cicular array
+    b->head_index = (b->head_index + 1) % b->size;        //change start position of cicular array
 
 	return;
 }
 
 
-void load_prev_line(buffer *b, FILE *fprev, FILE *fnext) {
+void load_prev_line(buffer *b) {
 	// check if line is present in fprev file
-	if(fseek(fprev, -1, SEEK_CUR) != -1)	
-		fseek(fprev, 1, SEEK_CUR);
+	if(fseek(b->fprev, -1, SEEK_CUR) != -1)	
+		fseek(b->fprev, 1, SEEK_CUR);
 	else
         return;            //line not present to load previous line
 
-	b->head_index = (b->head_index - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+	b->head_index = (b->head_index - 1 + b->size) % b->size;
 
     if (b->head_array[b->head_index].head != NULL)          //if last line is present store it
-        write_line(fnext, b->head_array[b->head_index]);
+        write_line(b->fnext, b->head_array[b->head_index]);
 
     destroy_line(&b->head_array[b->head_index]); // TODO: try to do without free
 
     char c = ' ';
     unsigned long position;
     if(WINDOWS)              //because newline character is diff in linux and windows
-        fseek(fprev, -1, SEEK_CUR);
+        fseek(b->fprev, -1, SEEK_CUR);
     
     while (c != '\n'){
         //printf("debugging\n");
-        if (fseek(fprev, -2, SEEK_CUR) == -1){
-            fseek(fprev, 0, SEEK_SET);  //if file has only 1 line, go to starting position
+        if (fseek(b->fprev, -2, SEEK_CUR) == -1){
+            fseek(b->fprev, 0, SEEK_SET);  //if file has only 1 line, go to starting position
             break;
         }
-        c = fgetc(fprev);
+        c = fgetc(b->fprev);
     }
     //fflush(fprev);
-    position = ftell(fprev);
+    position = ftell(b->fprev);
 
     /*TODO:try to write a function to read line from file, make code more modular */
     size_t len = 50;
     char *data = (char *)malloc(sizeof(char) * len);
-    len = getline(&data, &len, fprev);
+    len = getline(&data, &len, b->fprev);
     line *newline = (line *)malloc(sizeof(line));
     init_line(newline);
     insert_in_line(newline, data, len);
@@ -429,7 +433,7 @@ void load_prev_line(buffer *b, FILE *fprev, FILE *fnext) {
     b->head_array[b->head_index] = *newline;
 
     /*after reading a line, set file pointer to beginning indicating line is deleted */
-    fseek(fprev, position, SEEK_SET);
+    fseek(b->fprev, position, SEEK_SET);
 	return;
 }
 
@@ -462,27 +466,23 @@ void print_line_ncurses(line l, int line_num){
 
 
 void print_page_ncurses(buffer b){
-    for(int i=0; i < BUFFER_SIZE; i++){
-        print_line_ncurses(b.head_array[(b.head_index + i) % BUFFER_SIZE], i);
+    for(int i=0; i < b.size; i++){
+        print_line_ncurses(b.head_array[(b.head_index + i) % b.size], i);
     }
 }
 
 
 //TODO:handle EOF character
-int main(){
-
-    FILE* fptr = fopen("file.txt", "r");
-    FILE* fprev = fopen("fprev.txt", "w+");
-    FILE* fnext = fopen("fnext.txt", "w+");
-    
+int main(int argc, char **argv){
+   	
     buffer b;
-    init_buffer(&b);
-    
-    read_file_firsttime(fptr, &b);
-    print_buffer(b);
+    init_buffer(&b, 24, "file.txt");
+   
+    read_file_firsttime(&b);
+/*    print_buffer(b);
     printf("-----------------------------------------\n");
-/*
-    for(int i = b.head_index; i<BUFFER_SIZE; i++){
+
+    for(int i = b.head_index; i< b.size; i++){
         printf("%d\n", b.head_array[i].line_size);
     }
 
@@ -490,14 +490,14 @@ int main(){
     move_cursor(b.head_array[0].head, position);
     insert_character(&b.head_array[0], position - 1, 'g');
     print_buffer(b);
-    for(int i = 0; i<BUFFER_SIZE; i++){
-        printf("%d\n", b.head_array[(i + b.head_index) % BUFFER_SIZE].line_size);
+    for(int i = 0; i<b.size; i++){
+        printf("%d\n", b.head_array[(i + b.head_index) % b.size].line_size);
     }
     printf("-----------------------------------------\n");
     backspace(&b,0 ,position);
     print_buffer(b);
-    for(int i = 0; i<BUFFER_SIZE; i++){
-        printf("%d\n", b.head_array[(i + b.head_index) % BUFFER_SIZE].line_size);
+    for(int i = 0; i<b.size; i++){
+        printf("%d\n", b.head_array[(i + b.head_index) % b.size].line_size);
     }
     
     //write_buffer(fprev, b);
@@ -507,8 +507,8 @@ int main(){
     len = getline(&data, &len, fprev);
     printf("88\n%s", data);
 
-    for(int i = 0; i<BUFFER_SIZE; i++){
-        printf("%d\n", b.head_array[(i + b.head_index) % BUFFER_SIZE].line_size);
+    for(int i = 0; i<b.size; i++){
+        printf("%d\n", b.head_array[(i + b.head_index) % b.size].line_size);
     }
 */  
 /*    
@@ -580,8 +580,10 @@ int main(){
 
     int ch;
     int line_no = 0, col_no = 0;
+    
 
     print_page_ncurses(b);
+    
     print_loc(line_no, col_no);
     move(line_no, col_no);
     while (1){
@@ -597,46 +599,41 @@ int main(){
                 break;
 
             case KEY_RIGHT:
-                //if (col_no < (window_1.head)[head_index(window_1, line_no)].line_size)
-                if(col_no < b.head_array[(line_no + b.head_index) % BUFFER_SIZE].line_size - 1)
+                if(col_no < b.head_array[(line_no + b.head_index) % b.size].line_size - 1)
                     col_no++;
                 break;
 
             case KEY_DOWN:
-                //if (line_no < window_1.tot_lines - 1)
-                if(line_no < BUFFER_SIZE - 1)
+                if(line_no < b.size - 1)
                     line_no++;
                 else
-                    load_next_line(&b, fprev, fnext, fptr);
+                    load_next_line(&b);
 
-                //if (col_no > (window_1.head)[h_indx].line_size)
-                    //col_no = (window_1.head)[h_indx].line_size;
-                if(col_no > b.head_array[(line_no + b.head_index) % BUFFER_SIZE].line_size)
-                    col_no = b.head_array[(line_no + b.head_index) % BUFFER_SIZE].line_size - 1;
+                if(col_no > b.head_array[(line_no + b.head_index) % b.size].line_size)
+                    col_no = b.head_array[(line_no + b.head_index) % b.size].line_size - 1;
                 break;
 
             case KEY_UP:
                 if (line_no > 0)
                     line_no--;
                 else
-                    load_prev_line(&b, fprev, fnext);
+                    load_prev_line(&b);
 
-                if (col_no > b.head_array[(line_no + b.head_index) % BUFFER_SIZE].line_size)
-                    col_no = b.head_array[(line_no + b.head_index) % BUFFER_SIZE].line_size;
+                if (col_no > b.head_array[(line_no + b.head_index) % b.size].line_size)
+                    col_no = b.head_array[(line_no + b.head_index) % b.size].line_size;
 		break;
 	    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y':case 'z':case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X': case 'Y':case 'Z':case ' ':
-		insert_character(&b.head_array[(line_no + b.head_index) % BUFFER_SIZE], col_no, ch);
+		insert_character(&b.head_array[(line_no + b.head_index) % b.size], col_no, ch);
 		col_no++;
 		break;
 	    case KEY_BACKSPACE:
-		if(col_no){
+	    	if(col_no){
 			backspace(&b, line_no, col_no);
 			col_no--;
 		}
 		break;
 	    default:
                 break;
-        
             }
             print_page_ncurses(b);
             print_loc(line_no, col_no);
