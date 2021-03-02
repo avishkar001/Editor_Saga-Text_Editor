@@ -1,0 +1,120 @@
+#include "data_structure.h"
+#include<stdlib.h>
+#include<stdio.h>
+
+void init_lines_node(lines_node* l){
+    l->arr = (char*)malloc(sizeof(char)*NODES_SIZE);
+    l->next = NULL;
+    l->gap_size = NODES_SIZE;
+    l->gap_left = 0;
+    l->gap_right = NODES_SIZE - 1;
+    return;
+}
+
+void load_fullnode(lines_node* l){
+    l->gap_size = DEFAULT_GAP_SIZE;
+    l->gap_left = NODES_SIZE - DEFAULT_GAP_SIZE;
+    l->gap_right = NODES_SIZE - 1;
+    return;
+}
+
+void print_node(lines_node node){
+    //printf("inside print node");
+    for(int i=0; i<NODES_SIZE; i++){
+        if(i==node.gap_left && node.gap_size != 0){
+            i=node.gap_right;
+            continue;
+        }
+        printf("%c", node.arr[i]);
+        //if(node.arr[i] == '\n')
+            //return;
+    }
+    return;
+}
+
+
+void init_line(line* l){
+    l->head = NULL;
+    l->line_size = 0;
+}
+
+void append_in_line(line *l, lines_node *new){
+    if(l->head == NULL){
+        l->head = new;
+        return;
+    }
+    lines_node* p = l->head;
+    while(p->next != NULL){
+        p = p->next;
+    }
+
+    p->next = new;
+    return;
+}
+
+void insert_in_line(line *l, char* arr, int len){
+    //printf("inside insert_in_line");
+    int index = 0;
+    while(len>0){
+        lines_node* new = (lines_node*)malloc(sizeof(lines_node));
+        init_lines_node(new);
+        strncpy(new->arr, &arr[index], NODES_SIZE - DEFAULT_GAP_SIZE);
+        if(len>NODES_SIZE - DEFAULT_GAP_SIZE)
+            load_fullnode(new);
+        else{
+            new->gap_left = len;
+            new->gap_right = NODES_SIZE - 1;
+            new->gap_size = NODES_SIZE - len;
+        }
+
+        append_in_line(l, new);
+        len -= NODES_SIZE - DEFAULT_GAP_SIZE;
+        index += NODES_SIZE - DEFAULT_GAP_SIZE;
+    }
+
+}
+
+void set_line_size(line* l){
+    lines_node* p = l->head;
+
+    while (p){
+        l->line_size += NODES_SIZE - p->gap_size;
+        p = p->next;
+    }
+    return;
+}
+
+void print_line(line l){
+
+    lines_node *p = l.head;
+    while(p){
+        print_node(*p);
+        p = p->next;
+    }
+    return;
+}
+
+void init_buffer(buffer *b, int size, char* filename){
+    b->head_index = 0;
+    b->head_array = (line*)malloc(sizeof(line)*size);
+    b->size = size;
+    b->fptr = fopen(filename, "r");
+    b->fprev = fopen("fprev.txt", "w+");
+    b->fnext = fopen("fprev.txt", "w+");
+}
+
+
+void destroy_line(line* l){
+
+    lines_node *p = l->head, *q = NULL;
+
+    while(p){
+        q = p;
+        p = p->next;
+        free(q->arr);
+        free(q);
+    }
+    l->head = NULL;
+    l->line_size = 0;
+    return;
+}
