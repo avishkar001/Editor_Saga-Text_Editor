@@ -1,6 +1,12 @@
 #include "data_structure.h"
 #include<stdlib.h>
 #include<stdio.h>
+#include<string.h>
+
+#define BUFFER_SIZE 25
+#define NODES_SIZE 50
+#define DEFAULT_GAP_SIZE 10
+#define WINDOWS 0
 
 void init_lines_node(lines_node* l){
     l->arr = (char*)malloc(sizeof(char)*NODES_SIZE);
@@ -117,4 +123,45 @@ void destroy_line(line* l){
     l->head = NULL;
     l->line_size = 0;
     return;
+}
+
+
+void write_node(FILE *f, lines_node node){
+    //printf("inside print node");
+    for(int i=0; i<NODES_SIZE; i++){
+        if(i==node.gap_left && node.gap_size != 0){
+            i=node.gap_right;
+            continue;
+        }
+        fprintf(f, "%c", node.arr[i]);
+        //if(node.arr[i] == '\n')
+            //return;
+    }
+    return;
+}
+
+void write_line(FILE* f, line l){
+
+    lines_node *p = l.head;
+    while(p){
+        write_node(f, *p);
+        p = p->next;
+    }
+    return;
+}
+
+void write_buffer(FILE* f, buffer b){
+    
+    for(int i=0; i < BUFFER_SIZE; i++){
+        write_line(f, b.head_array[(b.head_index + i) % BUFFER_SIZE]);
+    }
+}
+
+
+void print_buffer(buffer b){
+    
+    for(int i=0; i < b.size; i++){
+        print_line(b.head_array[(b.head_index + i) % b.size]);
+    }
+
 }

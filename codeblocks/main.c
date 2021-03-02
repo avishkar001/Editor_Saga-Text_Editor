@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
 #include "gui.h"
 
 int main(int argc, char **argv){
@@ -157,9 +158,14 @@ int main(int argc, char **argv){
 		break;
 	    case KEY_BACKSPACE:
 	    	if(col_no){
-			backspace(&b, line_no, col_no);
-			col_no--;
-		}
+                backspace(&b, line_no, col_no);
+                col_no--;
+		    }
+            else{
+                backspace(&b, line_no, col_no);
+                col_no = b.head_array[(b.head_index + line_no - 1)%b.size].line_size;
+                line_no--;
+            }
 		break;
 	    default:
                 break;

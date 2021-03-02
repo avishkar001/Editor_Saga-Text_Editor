@@ -234,7 +234,7 @@ lines_node* move_cursor(lines_node* node, int position){
 
     if(position < node->gap_left)
         left(node, position);
-   else
+    if(position > node->gap_left)
         left(node, position);
     return node;
 }
@@ -270,30 +270,8 @@ void insert_character(line *l, int position, char data){
     return;
 }
 
-
-void load_next_line(buffer *b);
-
 // TODO delete line if del position is 0
 void backspace(buffer *b, int line_no, int position) {
-
-
-	if(position == 0){
-		if(line_no > 0){
-			lines_node* p = b->head_array[((line_no - 1) + b->head_index) % b->size].head;
-			
-			while(p->next)
-				p = p->next;
-				
-            
-			p->next = b->head_array[(line_no + b->head_index) % b->size].head;
-			for(int i = 0; i < (b->size - line_no); i++)
-                b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i + 1 + b->head_index) % b->size];
-            b->head_index = (b->head_index - 1 + b->size) % b->size;
-            b->head_array[b->head_index].head = NULL; 
-            b->head_array[b->head_index].line_size = 0;
-            load_next_line(b);
-		}
-	}
 	//numbering of line starts from 0
     //if head is at nonzero position add that offset 
     lines_node* node = b->head_array[(line_no + b->head_index) % b->size].head;
@@ -362,13 +340,12 @@ void load_next_line(buffer *b) {
     ungetc(ch, b->fptr);
 
     /*write first line to tmp file*/
-    if (b->head_array[b->head_index].head != NULL){ 
+    if (b->head_array[b->head_index].head != NULL) 
         write_line(b->fprev, b->head_array[b->head_index]);
-        destroy_line(&b->head_array[b->head_index]);
-    }
-    //else
-        //return;           TODO:check this case
-	//TODO: try to do without destroying
+    else
+        return;
+
+	destroy_line(&b->head_array[b->head_index]);	//TODO: try to do without destroying
 
 	char c = ' ';
     unsigned long position;
@@ -424,11 +401,10 @@ void load_prev_line(buffer *b) {
 
 	b->head_index = (b->head_index - 1 + b->size) % b->size;
 
-    if (b->head_array[b->head_index].head != NULL){         //if last line is present store it
+    if (b->head_array[b->head_index].head != NULL)          //if last line is present store it
         write_line(b->fnext, b->head_array[b->head_index]);
-        destroy_line(&b->head_array[b->head_index]);
-    }
-     // TODO: try to do without free
+
+    destroy_line(&b->head_array[b->head_index]); // TODO: try to do without free
 
     char c = ' ';
     unsigned long position;
@@ -652,14 +628,9 @@ int main(int argc, char **argv){
 		break;
 	    case KEY_BACKSPACE:
 	    	if(col_no){
-                backspace(&b, line_no, col_no);
-                col_no--;
-		    }
-            else{
-                backspace(&b, line_no, col_no);
-                col_no = b.head_array[(b.head_index + line_no - 1)%b.size].line_size;
-                line_no--;
-            }
+			backspace(&b, line_no, col_no);
+			col_no--;
+		}
 		break;
 	    default:
                 break;

@@ -1,4 +1,5 @@
-
+#include<ncurses.h>
+#include"gui.h"
 void print_loc(int x, int y){
         move(27, 20);
         mvprintw(27, 30, "x: %d y: %d", x, y);
