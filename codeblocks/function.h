@@ -3,7 +3,7 @@
 
 #include"gap_buffer.h"
 
-void insert_character(line *l, int position, char data);
+void insert_character(buffer *b, int line_no, int position, char data);
 void backspace(buffer *b, int line_no, int position);
 void load_next_line(buffer *b);
 void load_prev_line(buffer *b);

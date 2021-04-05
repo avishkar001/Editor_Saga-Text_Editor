@@ -2,14 +2,14 @@
 #define DATA_STRUCTURE_H_INCLUDED
 
 #define BUFFER_SIZE 25
-#define NODES_SIZE 50
-#define DEFAULT_GAP_SIZE 10
+#define NODES_SIZE 10
+#define DEFAULT_GAP_SIZE 1
 #define WINDOWS 0
 
 #include<stdio.h>
 
 typedef struct lines_node{
-    char* arr;
+    char *arr;
     int gap_left,gap_right, gap_size;
     struct lines_node *next;
 }lines_node;
@@ -41,5 +41,5 @@ void write_node(FILE *f, lines_node node);
 void write_line(FILE* f, line l);
 void write_buffer(FILE* f, buffer b);
 void print_buffer(buffer b);
-
+int get_line_size(line l);
 #endif // DATA_STRUCTURE_H_INCLUDED

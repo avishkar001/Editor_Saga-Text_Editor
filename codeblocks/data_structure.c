@@ -3,13 +3,9 @@
 #include<stdio.h>
 #include<string.h>
 
-#define BUFFER_SIZE 25
-#define NODES_SIZE 50
-#define DEFAULT_GAP_SIZE 10
-#define WINDOWS 0
 
 void init_lines_node(lines_node* l){
-    l->arr = (char*)malloc(sizeof(char)*NODES_SIZE);
+	l->arr = (char*)malloc(sizeof(char)*NODES_SIZE);
     l->next = NULL;
     l->gap_size = NODES_SIZE;
     l->gap_left = 0;
@@ -33,7 +29,7 @@ void print_node(lines_node node){
         }
         printf("%c", node.arr[i]);
         //if(node.arr[i] == '\n')
-            //return;
+            //printf("%c", '\n');
     }
     return;
 }
@@ -61,7 +57,7 @@ void append_in_line(line *l, lines_node *new){
 void insert_in_line(line *l, char* arr, int len){
     //printf("inside insert_in_line");
     int index = 0;
-    while(len>0){
+    while(len>=0){
         lines_node* new = (lines_node*)malloc(sizeof(lines_node));
         init_lines_node(new);
         strncpy(new->arr, &arr[index], NODES_SIZE - DEFAULT_GAP_SIZE);
@@ -97,6 +93,7 @@ void print_line(line l){
         print_node(*p);
         p = p->next;
     }
+    printf("%c", '\n');
     return;
 }
 
@@ -106,7 +103,7 @@ void init_buffer(buffer *b, int size, char* filename){
     b->size = size;
     b->fptr = fopen(filename, "r");
     b->fprev = fopen("fprev.txt", "w+");
-    b->fnext = fopen("fprev.txt", "w+");
+    b->fnext = fopen("fnext.txt", "w+");
 }
 
 
@@ -135,7 +132,7 @@ void write_node(FILE *f, lines_node node){
         }
         fprintf(f, "%c", node.arr[i]);
         //if(node.arr[i] == '\n')
-            //return;
+            //fprintf(f, "%c", '\n');
     }
     return;
 }
@@ -147,6 +144,7 @@ void write_line(FILE* f, line l){
         write_node(f, *p);
         p = p->next;
     }
+    fprintf(f, "%c", '\n');
     return;
 }
 
@@ -163,5 +161,18 @@ void print_buffer(buffer b){
     for(int i=0; i < b.size; i++){
         print_line(b.head_array[(b.head_index + i) % b.size]);
     }
+
+}
+
+int get_line_size(line l){
+
+	lines_node* p = l.head;
+	
+	int count = 0;
+	while(p){
+		count += NODES_SIZE - p->gap_size;
+		p = p->next;
+	}
+	return count;
 
 }

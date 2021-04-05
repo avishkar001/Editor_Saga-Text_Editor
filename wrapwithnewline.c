@@ -273,7 +273,6 @@ void insert_character(line *l, int position, char data){
 
 void load_next_line(buffer *b);
 
-void load_prev_line(buffer *b);
 // TODO delete line if del position is 0
 void backspace(buffer *b, int line_no, int position) {
 
@@ -286,33 +285,14 @@ void backspace(buffer *b, int line_no, int position) {
 				p = p->next;
 				
             
-			p->next = b->head_array[(line_no + b->head_index) % b->size].head;  //join line
-
-			for(int i = 0; i < (b->size - line_no); i++)                        //move pointers up
+			p->next = b->head_array[(line_no + b->head_index) % b->size].head;
+			for(int i = 0; i < (b->size - line_no); i++)
                 b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i + 1 + b->head_index) % b->size];
-            
-            //decrement head to point to last line and load next line
-            //note if line points to Null, load_next_line will not write that node to file
             b->head_index = (b->head_index - 1 + b->size) % b->size;
             b->head_array[b->head_index].head = NULL; 
             b->head_array[b->head_index].line_size = 0;
             load_next_line(b);
 		}
-        else{
-            lines_node *temphead = b->head_array[(line_no + b->head_index) % b->size].head;
-            b->head_array[b->head_index].head = NULL; 
-            b->head_array[b->head_index].line_size = 0;
-            load_prev_line(b);
-            lines_node* p = b->head_array[b->head_index].head;
-			
-            //check if load previous line fails
-
-			while(p->next)
-				p = p->next;
-				
-            
-			p->next = temphead;  //join line
-        }
 	}
 	//numbering of line starts from 0
     //if head is at nonzero position add that offset 
@@ -336,7 +316,7 @@ void backspace(buffer *b, int line_no, int position) {
     else if(position > node->gap_right)
         right(node, position);
 
-	//if left gap boundary is at 0, take previous node
+	// if left gap boundary is at 0, take previous node
 	if(node->gap_left == 0) {
 		if(prev_node)
 			node = prev_node;
@@ -677,12 +657,8 @@ int main(int argc, char **argv){
 		    }
             else{
                 backspace(&b, line_no, col_no);
-                if(line_no){
-                    col_no = b.head_array[(b.head_index + line_no - 1)%b.size].line_size - 1;
-                    line_no--;
-                }
-                else
-                    col_no = b.head_array[b.head_index].line_size - 1;
+                col_no = b.head_array[(b.head_index + line_no - 1)%b.size].line_size - 1;
+                line_no--;
             }
 		break;
 	    default:

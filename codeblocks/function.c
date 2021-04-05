@@ -4,9 +4,57 @@
 #include<string.h>
 
 
-void insert_character(line *l, int position, char data){
-
+void insert_character(buffer *b, int line_no, int position, char data){
+	
+	line* l = &b->head_array[(line_no + b->head_index) % b->size];
     lines_node* node = move_cursor(l->head, position);
+
+	if(data == '\n'){
+	
+        lines_node* newnode = (lines_node*)malloc(sizeof(lines_node*));
+        if(newnode == NULL)
+            return;
+        init_lines_node(newnode);
+        newnode->next = node->next;
+        node->next = NULL;
+        int copydata_len = NODES_SIZE - node->gap_right - 1;
+
+        strncpy(newnode->arr, &node->arr[node->gap_right + 1], copydata_len);
+        newnode->gap_left = copydata_len;
+        newnode->gap_right = NODES_SIZE - 1;
+        node->gap_right = NODES_SIZE - 1;
+        node->gap_size = node->gap_right - node->gap_left + 1;
+        newnode->gap_size = newnode->gap_right - newnode->gap_left + 1;
+
+        /*for last position
+        if(node->gap_left >= NODES_SIZE)
+            node = node->next;
+        */
+        
+		b->head_array[(line_no + b->head_index) % b->size].line_size = get_line_size(b->head_array[(line_no + b->head_index) % b->size]);
+		//printf("%d", get_line_size(b->head_array[(line_no + b->head_index) % b->size]));
+		
+        int i = b->head_index - 1;
+		while(i != line_no + b->head_index + 1){
+			if(i == -1){
+				i = b->size - 1;
+				continue;
+			}
+			//b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i - 1 + b->head_index) % b->size];
+			b->head_array[i] = b->head_array[(i - 1 + b->size) % b->size];
+			i--;
+		}
+		
+        b->head_array[(line_no + b->head_index + 1) % b->size].head = newnode;
+        b->head_array[(line_no + b->head_index + 1) % b->size].line_size = get_line_size(b->head_array[(line_no + b->head_index + 1) % b->size]);
+        //set_line_size(&b->head_array[(line_no + b->head_index + 1) % b->size]);
+        
+		
+        
+        
+        //for(int i = (b->head_index + b->size - 1) % ; i >= (line_no + b->head_index + i) % b->size ; i--)
+                //b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i - 1 + b->head_index) % b->size];
+    }
 
     if(node->gap_size == 0){
         lines_node* newnode = (lines_node*)malloc(sizeof(lines_node*));
@@ -19,8 +67,9 @@ void insert_character(line *l, int position, char data){
         int copydata_len = NODES_SIZE - node->gap_left;
 
         strncpy(newnode->arr, &node->arr[node->gap_left], copydata_len);
-        newnode->gap_left = copydata_len + 1;
-        newnode->gap_size = node->gap_left - 1;
+        newnode->gap_left = copydata_len;
+        newnode->gap_size = node->gap_left;
+
         node->gap_right = NODES_SIZE - 1;
         node->gap_size = copydata_len;
 
@@ -45,9 +94,9 @@ void backspace(buffer *b, int line_no, int position){
 			
 			while(p->next)
 				p = p->next;
-				
-            
+			
 			p->next = b->head_array[(line_no + b->head_index) % b->size].head;
+			b->head_array[((line_no - 1) + b->head_index) % b->size].line_size += b->head_array[(line_no + b->head_index) % b->size].line_size;
 			for(int i = 0; i < (b->size - line_no); i++)
                 b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i + 1 + b->head_index) % b->size];
             b->head_index = (b->head_index - 1 + b->size) % b->size;
@@ -64,7 +113,7 @@ void backspace(buffer *b, int line_no, int position){
 
 	lines_node* prev_node = NULL;
 
-	//find node to whic position belongs or last node if position is too big
+	//find node to which position belongs or last node if position is too big
     while((NODES_SIZE - node->gap_size) < position) {
 
         if(node->next == NULL)       //stop at last node if position is too big
@@ -87,7 +136,7 @@ void backspace(buffer *b, int line_no, int position){
 		else
 			return;
 	}
-	//delete chaaracter by growing gap
+	//delete character by growing gap
 	node->gap_left--;
 	node->gap_size++;
     b->head_array[(line_no + b->head_index) % b->size].line_size--;
@@ -107,9 +156,10 @@ void load_next_line(buffer *b){
 		return;
 	}
     ungetc(ch, b->fptr);
-
+	
     /*write first line to tmp file*/
      if (b->head_array[b->head_index].head != NULL){ 
+        
         write_line(b->fprev, b->head_array[b->head_index]);
         destroy_line(&b->head_array[b->head_index]);
     }
@@ -144,6 +194,8 @@ void load_next_line(buffer *b){
     else
         len = getline(&data, &len, b->fptr);
 
+    if(data[len-1] == '\n')
+		len--;
     line *newline = (line *)malloc(sizeof(line));
     init_line(newline);
     insert_in_line(newline, data, len);
@@ -193,10 +245,12 @@ void load_prev_line(buffer *b){
     position = ftell(b->fprev);
 
     /*TODO:try to write a function to read line from file, make code more modular */
-    size_t len = 50;
+    size_t len = NODES_SIZE;
     char *data = (char *)malloc(sizeof(char) * len);
     len = getline(&data, &len, b->fprev);
-    line *newline = (line *)malloc(sizeof(line));
+    if(data[len-1] == '\n')
+		len--;
+    line *newline = (line*)malloc(sizeof(line));
     init_line(newline);
     insert_in_line(newline, data, len);
     set_line_size(newline);
@@ -212,9 +266,11 @@ void read_file_firsttime(buffer* b){
     size_t len;
 
     for(int i=0; i<b->size; i++){
-        len = 50;
+        len = NODES_SIZE;
         char* data = (char*)malloc(sizeof(char)*len);
         len = getline(&data, &len, b->fptr);
+        if(data[len -1] == '\n')
+        	len--;
         line* newline = (line*)malloc(sizeof(line));
         init_line(newline);
         insert_in_line(newline, data, len);

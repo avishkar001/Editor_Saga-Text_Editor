@@ -52,6 +52,6 @@ lines_node* move_cursor(lines_node* node, int position){
     if(position < node->gap_left)
         left(node, position);
     if(position > node->gap_left)
-        left(node, position);
+        right(node, position);
     return node;
 }
