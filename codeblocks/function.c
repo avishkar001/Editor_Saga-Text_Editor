@@ -2,6 +2,49 @@
 #include<stdio.h>
 #include"function.h"
 #include<string.h>
+#include<limits.h>
+
+void insert_string(buffer *b, int line_no, int position, char* data, int datalen){
+
+	for(int i=0; i<datalen; i++)
+		insert_character(b, line_no, position + i, data[i]);
+
+}
+
+int is_comment(buffer *b, int line_no){
+	
+	lines_node* p = b->head_array[(line_no + b->head_index) % b->size].head;
+	
+	char ch_prev = ' ';
+	while(p){
+		for(int i=0; i<NODES_SIZE; i++){
+			if(i==p->gap_left && p->gap_size != 0){
+				i=p->gap_right;
+				continue;
+			}
+			if(p->arr[i] != ' ' && p->arr[i] != '/')
+				return 0;
+			if(ch_prev == '/' && p->arr[i] == '/')
+				return 1;
+			ch_prev = p->arr[i];
+		}
+		p = p->next;
+	}
+	
+}
+
+char last_character(buffer *b, int line_no){
+	
+	lines_node* p = b->head_array[(line_no + b->head_index) % b->size].head;
+	
+	while(p->next)
+		p = p->next;
+		
+	if(p->gap_size == NODES_SIZE)
+		return CHAR_MIN;
+		
+	else return p->arr[p->gap_left - 1];
+}
 
 
 void insert_character(buffer *b, int line_no, int position, char data){
@@ -54,6 +97,7 @@ void insert_character(buffer *b, int line_no, int position, char data){
         
         //for(int i = (b->head_index + b->size - 1) % ; i >= (line_no + b->head_index + i) % b->size ; i--)
                 //b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i - 1 + b->head_index) % b->size];
+                return;
     }
 
     if(node->gap_size == 0){

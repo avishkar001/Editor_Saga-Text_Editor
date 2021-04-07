@@ -74,6 +74,8 @@ bool search(struct TrieNode *root, const char *key)
 
 	for (level = 0; level < length; level++)
 	{
+		if(key[level] < 'a' || key[level] > 'z')
+			return false;
 		index = CHAR_TO_INDEX(key[level]);
 
 		if (!pCrawl->children[index])

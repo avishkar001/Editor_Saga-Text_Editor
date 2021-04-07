@@ -104,17 +104,23 @@ void init_buffer(buffer *b, int size, char* filename){
     b->fptr = fopen(filename, "r");
     b->fprev = fopen("fprev.txt", "w+");
     b->fnext = fopen("fnext.txt", "w+");
+    
+    if(filename[strlen(filename) - 1] == 'c' && filename[strlen(filename) - 2] == '.')
+    	b->filetype = C_FILE;
+    else
+    	b->filetype = TEXT_FILE;
 }
 
 
 void destroy_line(line* l){
-
+	if(l == NULL)
+		return;
     lines_node *p = l->head, *q = NULL;
 
     while(p){
         q = p;
         p = p->next;
-        free(q->arr);
+        //free(q->arr);
         free(q);
     }
     l->head = NULL;

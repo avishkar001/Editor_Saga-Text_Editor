@@ -6,6 +6,9 @@
 #define DEFAULT_GAP_SIZE 1
 #define WINDOWS 0
 
+#define C_FILE 0
+#define TEXT_FILE 1
+
 #include<stdio.h>
 
 typedef struct lines_node{
@@ -24,6 +27,7 @@ typedef struct buffer{
     int head_index;
     int size;
     FILE *fptr, *fprev, *fnext;
+    int filetype;
 }buffer;
 
 

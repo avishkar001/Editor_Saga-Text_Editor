@@ -3,6 +3,9 @@
 
 #include"gap_buffer.h"
 
+char last_character(buffer *b, int line_no);
+int is_comment(buffer *b, int line_no);
+void insert_string(buffer *b, int line_no, int position, char* data, int datalen);
 void insert_character(buffer *b, int line_no, int position, char data);
 void backspace(buffer *b, int line_no, int position);
 void load_next_line(buffer *b);
