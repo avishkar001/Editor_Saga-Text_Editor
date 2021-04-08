@@ -4,6 +4,24 @@
 #include<string.h>
 #include<limits.h>
 
+void save_file(buffer *b){
+
+	while(ftell(b->fnext) != 0){
+		load_next_line(b);
+	}
+	write_buffer(b->fprev, *b);
+	
+	char c = fgetc(b->fptr);
+    while (c != EOF){
+    
+        fputc(c, b->fprev);
+        c = fgetc(b->fptr);
+    }
+	
+	return;
+}
+
+
 void insert_string(buffer *b, int line_no, int position, char* data, int datalen){
 
 	for(int i=0; i<datalen; i++)
@@ -238,7 +256,7 @@ void load_next_line(buffer *b){
     else
         len = getline(&data, &len, b->fptr);
 
-    if(data[len-1] == '\n')
+    if(len>0 && data[len-1] == '\n')
 		len--;
     line *newline = (line *)malloc(sizeof(line));
     init_line(newline);
@@ -292,7 +310,7 @@ void load_prev_line(buffer *b){
     size_t len = NODES_SIZE;
     char *data = (char *)malloc(sizeof(char) * len);
     len = getline(&data, &len, b->fprev);
-    if(data[len-1] == '\n')
+    if(len>0 && data[len-1] == '\n')
 		len--;
     line *newline = (line*)malloc(sizeof(line));
     init_line(newline);

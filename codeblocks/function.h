@@ -3,6 +3,7 @@
 
 #include"gap_buffer.h"
 
+void save_file(buffer *b);
 char last_character(buffer *b, int line_no);
 int is_comment(buffer *b, int line_no);
 void insert_string(buffer *b, int line_no, int position, char* data, int datalen);

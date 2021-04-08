@@ -9,10 +9,14 @@
 #define	CTRL(c)	(c & 037)
 #endif
 
+#define CURSOR_CHANGE 'c'
+#define LINE_CHANGE 'l'
+#define PAGE_CHANGE 'p'
+
 int main(int argc, char **argv){
 
     buffer b;
-    init_buffer(&b, 24, "sample.c");
+    init_buffer(&b, 35, "file.txt");
 
     read_file_firsttime(&b);
 /*    print_buffer(b);
@@ -124,6 +128,7 @@ int main(int argc, char **argv){
     print_loc(line_no, col_no);
     move(line_no, col_no);
     while (1){
+    	char change;
         ch = getch();
         switch (ch){
 			case KEY_F(1):
@@ -134,20 +139,24 @@ int main(int argc, char **argv){
 			case KEY_F(2):
 				insert_string(&b, line_no, col_no, F2_SHORTCUT, strlen(F2_SHORTCUT));
 				col_no += 7;
+				change = LINE_CHANGE;
 				break;
 
 			case KEY_F(3):
 				insert_string(&b, line_no, col_no, F3_SHORTCUT, strlen(F3_SHORTCUT));
 				col_no += strlen(F3_SHORTCUT);
+				change = LINE_CHANGE;
 				break;
 				
 			case KEY_F(4):
 				insert_string(&b, line_no, col_no, F4_SHORTCUT, strlen(F4_SHORTCUT));
 				col_no += strlen(F4_SHORTCUT);
+				change = LINE_CHANGE;
 				break;
 				
 			case KEY_F(5):
-				insert_character(&b, line_no, 0, last_character(&b, line_no));
+				//save_file(&b);
+				change = PAGE_CHANGE;
 				break;
 				
 			case KEY_F(6):
@@ -155,6 +164,8 @@ int main(int argc, char **argv){
 					backspace(&b, line_no, b.head_array[(line_no + b.head_index) % b.size].line_size);
 				else
 					insert_character(&b, line_no, b.head_array[(line_no + b.head_index) % b.size].line_size, ';');
+				
+				change = LINE_CHANGE;
 				break;
 			
 			case KEY_F(7):
@@ -162,34 +173,43 @@ int main(int argc, char **argv){
 					insert_character(&b, line_no, 0, '/');
 					insert_character(&b, line_no, 0, '/');
 				}
+				change = LINE_CHANGE;
 				break;
 				
 		    case KEY_LEFT:
 		        if (col_no)
 		            col_no--;
+				change = CURSOR_CHANGE;
 		        break;
 
 		    case KEY_RIGHT:
 		        if(col_no < b.head_array[(line_no + b.head_index) % b.size].line_size)
 		            col_no++;
+		        change = CURSOR_CHANGE;
 		        break;
 
 		    case KEY_DOWN:
-		        if(line_no < b.size - 1)
+		        if(line_no < b.size - 1){
 		            line_no++;
-		        else
+		        	change = CURSOR_CHANGE;
+		        }
+		        else{
 		            load_next_line(&b);
-
+			        change = PAGE_CHANGE;
+		        }
 		        if(col_no > b.head_array[(line_no + b.head_index) % b.size].line_size)
 		            col_no = b.head_array[(line_no + b.head_index) % b.size].line_size;
 		        break;
 
 		    case KEY_UP:
-		        if (line_no > 0)
+		        if (line_no > 0){
 		            line_no--;
-		        else
+		        	change = CURSOR_CHANGE;
+		        }
+		        else{
 		            load_prev_line(&b);
-
+			        change = PAGE_CHANGE;
+		        }
 		        if (col_no > b.head_array[(line_no + b.head_index) % b.size].line_size)
 		            col_no = b.head_array[(line_no + b.head_index) % b.size].line_size;
 				break;
@@ -200,25 +220,32 @@ int main(int argc, char **argv){
 				insert_character(&b, line_no, col_no, ch);
 				line_no++;
 				col_no = 0;
+				change = PAGE_CHANGE;
 				break;
 			case KEY_BACKSPACE:
 				if(col_no){
 		            backspace(&b, line_no, col_no);
 		            col_no--;
+		            change = LINE_CHANGE;
 				}
 		        else{
 		        	int temp = b.head_array[(b.head_index + line_no - 1)%b.size].line_size;
 		            backspace(&b, line_no, col_no);
 		            col_no = temp;
 		            line_no--;
+		            change = PAGE_CHANGE;
 		        }
 			break;
 			default:
-				insert_character(&b, line_no, col_no, ch);
-			col_no++;
+					insert_character(&b, line_no, col_no, ch);
+					col_no++;
+					change = LINE_CHANGE;
 		            break;
-		        }
-		        print_page_ncurses(b);
+		}
+		        if(change == PAGE_CHANGE)
+		        	print_page_ncurses(b);
+		        else if(change == LINE_CHANGE)
+		        	print_line_ncurses(b.head_array[(line_no + b.head_index) % b.size], line_no, b.filetype);	
 		        print_loc(line_no, col_no);
 		        move(line_no, col_no);
     }

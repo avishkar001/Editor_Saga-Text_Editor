@@ -5,13 +5,22 @@
 #include"trie.h"
 #include"data_structure.h"
 void print_loc(int x, int y){
-        move(27, 20);
+        move(37, 0);
 		clrtoeol();
-        mvprintw(27, 30, "x: %d y: %d", x, y);
+        mvprintw(37, 0, "x: %d y: %d", x, y);
 }
 
 void print_line_ncurses(line l, int line_num, int type){
 
+	if(l.head == NULL){
+		start_color();
+		init_color(COLOR_BLACK, 0, 0, 0);
+		init_pair(3, COLOR_CYAN, COLOR_BLACK);
+		attron(COLOR_PAIR(3));
+    	mvaddch(line_num, 0, '~');
+    	attroff(COLOR_PAIR(3));
+		return;
+	}
 	if(type == C_FILE){
 		lines_node *p = l.head;
 		int col_num = 0;
@@ -28,12 +37,14 @@ void print_line_ncurses(line l, int line_num, int type){
 		init_color(COLOR_BLACK, 0, 0, 0);
 		init_color(COLOR_YELLOW, 900, 950, 0);
 		init_color(COLOR_BLUE, 257, 386, 600);
+		init_color(COLOR_BLACK, 50, 50, 50);
 		
-		init_color(COLOR_GREEN, 1000, 0, 250);
+		init_color(COLOR_RED, 1000, 0, 250);
 		init_pair(1, COLOR_YELLOW, COLOR_BLACK);
-		init_pair(2, COLOR_GREEN, COLOR_BLACK);
+		init_pair(2, COLOR_RED, COLOR_BLACK);
 		init_pair(3, COLOR_CYAN, COLOR_BLACK);
 		init_pair(4, COLOR_MAGENTA, COLOR_BLACK);
+		init_pair(5, COLOR_GREEN, COLOR_BLACK);
 		
 		while(p){
 		    for(int i=0; i<NODES_SIZE; i++){
@@ -72,7 +83,7 @@ void print_line_ncurses(line l, int line_num, int type){
 		        	
 		        }
 		         
-		        if(p->arr[i] == ' ' || p->arr[i] == '('){
+		        if(p->arr[i] == ' ' || p->arr[i] == '('|| p->arr[i] == ';'){
 		        	highlight[j] = '\0';
 		        	
 		        	if(search(root, highlight)){
@@ -90,8 +101,8 @@ void print_line_ncurses(line l, int line_num, int type){
 							color = 4;	
 						}
 						else {
-							attron(COLOR_PAIR(3));
-							color = 3;	
+							attron(COLOR_PAIR(5));
+							color = 5;	
 						}
 						
 		        		for(int k=0; k< strlen(highlight); k++){
