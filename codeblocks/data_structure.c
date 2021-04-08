@@ -120,7 +120,7 @@ void destroy_line(line* l){
     while(p){
         q = p;
         p = p->next;
-        //free(q->arr);
+        free(q->arr);
         free(q);
     }
     l->head = NULL;
@@ -156,8 +156,8 @@ void write_line(FILE* f, line l){
 
 void write_buffer(FILE* f, buffer b){
     
-    for(int i=0; i < BUFFER_SIZE; i++){
-        write_line(f, b.head_array[(b.head_index + i) % BUFFER_SIZE]);
+    for(int i=0; i < b.size; i++){
+        write_line(f, b.head_array[(b.head_index + i) % b.size]);
     }
 }
 

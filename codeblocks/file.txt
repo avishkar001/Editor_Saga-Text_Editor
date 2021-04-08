@@ -113,7 +113,7 @@ There are some known bugs to fix in JTAG adapter drivers:
   - usbprog.c
   - vsllink.c
   - rlink/rlink.c
-- bug: USBprog is broken with new tms sequence; it needs 7-clock cycles.
+
   Fix promised from  Peter Denison openwrt at marshadder.org
   Workaround: use "tms_sequence long" @par
   https://lists.berlios.de/pipermail/openocd-development/2009-July/009426.html

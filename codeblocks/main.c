@@ -16,7 +16,7 @@
 int main(int argc, char **argv){
 
     buffer b;
-    init_buffer(&b, 35, "file.txt");
+    init_buffer(&b, 35, "sample.c");
 
     read_file_firsttime(&b);
 /*    print_buffer(b);
@@ -155,7 +155,7 @@ int main(int argc, char **argv){
 				break;
 				
 			case KEY_F(5):
-				//save_file(&b);
+				save_file(&b);
 				change = PAGE_CHANGE;
 				break;
 				

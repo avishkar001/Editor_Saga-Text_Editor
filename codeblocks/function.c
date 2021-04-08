@@ -11,14 +11,16 @@ void save_file(buffer *b){
 	}
 	write_buffer(b->fprev, *b);
 	
-	char c = fgetc(b->fptr);
+	char c;
+	//fflush(b->fptr);
+	//fflush(b->fprev);
+	
+	c = fgetc(b->fptr);
     while (c != EOF){
     
         fputc(c, b->fprev);
         c = fgetc(b->fptr);
     }
-	
-	return;
 }
 
 
@@ -119,7 +121,7 @@ void insert_character(buffer *b, int line_no, int position, char data){
     }
 
     if(node->gap_size == 0){
-        lines_node* newnode = (lines_node*)malloc(sizeof(lines_node*));
+        lines_node* newnode = (lines_node*)malloc(sizeof(lines_node));
         if(newnode == NULL)
             return;
         init_lines_node(newnode);
@@ -231,7 +233,7 @@ void load_next_line(buffer *b){
 
 	char c = ' ';
     unsigned long position;
-    fseek(b->fnext, -1, SEEK_CUR);
+    //fseek(b->fnext, -1, SEEK_CUR);
     if (fnext_flag){
 
         if (WINDOWS)
