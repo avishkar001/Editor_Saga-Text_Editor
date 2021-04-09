@@ -2,8 +2,8 @@
 #define DATA_STRUCTURE_H_INCLUDED
 
 
-#define NODES_SIZE 10
-#define DEFAULT_GAP_SIZE 1
+#define NODES_SIZE 15
+#define DEFAULT_GAP_SIZE 3
 #define WINDOWS 0
 
 #define C_FILE 0
@@ -28,6 +28,7 @@ typedef struct buffer{
     int size;
     FILE *fptr, *fprev, *fnext;
     int filetype;
+    char* filename;
 }buffer;
 
 

@@ -1,26 +1,98 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include"function.h"
+#include"data_structure.h"
 #include<string.h>
 #include<limits.h>
+#include <sys/stat.h>
 
 void save_file(buffer *b){
+    
+	FILE* fsave = fopen("save.txt", "w");
+	
+    struct stat st;
+    stat(b->filename, &st);
+    chmod("save.txt", st.st_mode);
+	
+    long int no_of_bytes;
+	char c  = ' ';
 
+	no_of_bytes = ftell(b->fprev);
+    fseek(b->fprev, 0, SEEK_SET);
+
+    for(int i=0; i<no_of_bytes; i++){
+        
+        c = fgetc(b->fprev);
+        fputc(c, fsave);
+    }
+
+    
+    write_buffer(fsave, *b);
+    
+    while(ftell(b->fnext) != 0){    
+        c = ' ';
+        while(c != '\n'){
+            if (fseek(b->fnext, -2, SEEK_CUR) == -1){
+                fseek(b->fnext, 0, SEEK_SET);             //if file has only 1 line
+                break;
+            }
+            c = fgetc(b->fnext);
+        }
+            //fflush(fp);
+        no_of_bytes = ftell(b->fnext);
+
+        c = fgetc(b->fnext);
+        
+        while (c != '\n'){
+        
+            fputc(c, fsave);
+            c = fgetc(b->fnext);
+        }
+
+        fputc(c, fsave);
+        fseek(b->fnext, no_of_bytes, SEEK_SET);
+        
+    }
+    
+    c = fgetc(b->fptr);
+	
+    while (c != EOF){
+    
+        fputc(c, fsave);
+        c = fgetc(b->fptr);
+    }
+    /*
+    fcloseall();
+    remove(b->filename);
+    rename("save.txt", b->filename);
+    
+	
+	int flag = 0;
 	while(ftell(b->fnext) != 0){
 		load_next_line(b);
+		flag = 1;
 	}
 	write_buffer(b->fprev, *b);
 	
 	char c;
 	//fflush(b->fptr);
-	//fflush(b->fprev);
+	fflush(b->fprev);
+	//char arr[100];
+	//fscanf(b->fptr, "[^\n]%s", arr);
 	
+	//while ((c = fgetc(b->fptr)) != '\n');
+	if(flag){
+		for(int i=0; i<NODES_SIZE - DEFAULT_GAP_SIZE - 1; i++)
+			c = fgetc(b->fptr);
+	}
 	c = fgetc(b->fptr);
+	
     while (c != EOF){
     
         fputc(c, b->fprev);
         c = fgetc(b->fptr);
     }
+    */
 }
 
 
@@ -215,12 +287,12 @@ void load_next_line(buffer *b){
 		fnext_flag = 1;
         //printf("debug\n");
 	}
-	else if((ch = fgetc(b->fptr)) == -1){
-		//return if file is empty
-		return;
+    else{
+        if((ch = fgetc(b->fptr)) == -1)
+		    return;                //return if file is empty
+		else
+            ungetc(ch, b->fptr);
 	}
-    ungetc(ch, b->fptr);
-	
     /*write first line to tmp file*/
      if (b->head_array[b->head_index].head != NULL){ 
         

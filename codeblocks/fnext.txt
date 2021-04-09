@@ -1,3 +1,47 @@
+    }
+        index += NODES_SIZE - DEFAULT_GAP_SIZE;
+        len -= NODES_SIZE - DEFAULT_GAP_SIZE;
+        append_in_line(l, new);
+
+        }
+            new->gap_size = NODES_SIZE - len;
+            new->gap_right = NODES_SIZE - 1;
+            new->gap_left = len;
+        else{
+            load_fullnode(new);
+        if(len>NODES_SIZE - DEFAULT_GAP_SIZE)
+        strncpy(new->arr, &arr[index], NODES_SIZE - DEFAULT_GAP_SIZE);
+        init_lines_node(new);
+        lines_node* new = (lines_node*)malloc(sizeof(lines_node));
+    while(len>0){
+    int index = 0;
+    //printf("inside insert_in_line");
+void insert_in_line(line *l, char* arr, int len){
+
+}
+    return;
+    p->next = new;
+    
+    }
+        p = p->next;
+    while(p->next != NULL){
+    lines_node* p = l->head;
+    }
+        return;
+        l->head = new;
+    if(l->head == NULL){
+void append_in_line(line *l, lines_node *new){
+
+}
+    l->line_size = 0;
+    l->head = NULL;
+void init_line(line* l){
+
+} line;
+    int line_size;
+    lines_node* head;
+typedef struct line{
+
 }
     return;
     }
@@ -7,3 +51,4 @@
         }
             continue;
             i=node.gap_right;
+        if(i==node.gap_left && node.gap_size != 0){

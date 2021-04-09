@@ -104,6 +104,8 @@ void init_buffer(buffer *b, int size, char* filename){
     b->fptr = fopen(filename, "r");
     b->fprev = fopen("fprev.txt", "w+");
     b->fnext = fopen("fnext.txt", "w+");
+    b->filename = (char*)malloc(sizeof(char)*(strlen(filename)+1));
+    strcpy(b->filename, filename);
     
     if(filename[strlen(filename) - 1] == 'c' && filename[strlen(filename) - 2] == '.')
     	b->filetype = C_FILE;
