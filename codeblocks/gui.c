@@ -38,6 +38,7 @@ void print_line_ncurses(line l, int line_num, int type){
 		init_color(COLOR_YELLOW, 900, 950, 0);
 		init_color(COLOR_BLUE, 257, 386, 600);
 		init_color(COLOR_BLACK, 50, 50, 50);
+		init_color(9, 800, 160, 0);
 		
 		init_color(COLOR_RED, 1000, 0, 250);
 		init_pair(1, COLOR_YELLOW, COLOR_BLACK);
@@ -45,6 +46,7 @@ void print_line_ncurses(line l, int line_num, int type){
 		init_pair(3, COLOR_CYAN, COLOR_BLACK);
 		init_pair(4, COLOR_MAGENTA, COLOR_BLACK);
 		init_pair(5, COLOR_GREEN, COLOR_BLACK);
+		init_pair(6, 9, COLOR_BLACK);
 		
 		while(p){
 		    for(int i=0; i<NODES_SIZE; i++){
@@ -62,23 +64,41 @@ void print_line_ncurses(line l, int line_num, int type){
 		       
 		        */
 		        if(comment_flag){
-		        	attron(COLOR_PAIR(3));
-		        	mvaddch(line_num, col_num++, p->arr[i]);
-		        	attroff(COLOR_PAIR(3));
+					if(comment_flag == 1){
+						attron(COLOR_PAIR(3));
+						mvaddch(line_num, col_num++, p->arr[i]);
+						attroff(COLOR_PAIR(3));
+					}
+					else{
+						attron(COLOR_PAIR(6));
+						mvaddch(line_num, col_num++, p->arr[i]);
+						attroff(COLOR_PAIR(6));
+					}
 		        	continue;
 		        }
 		        
 		        
-				if(p->arr[i] == '/' && ch_prev == '/'){
-		       		comment_flag = 1;
+				if(p->arr[i] == '/' && ch_prev == '/' || p->arr[i] == '#'){
+		       		
 		        	highlight[j] = '\0';
 		       		for(int k=0; k<strlen(highlight); k++)
 		       			mvaddch(line_num, col_num++, highlight[k]);
 		        	j=0;
 		        	attron(COLOR_PAIR(3));
-		        	mvaddch(line_num, col_num - 1, '/');
-		       		mvaddch(line_num, col_num++, '/');
-		       		attroff(COLOR_PAIR(3));
+					if(p->arr[i] == '/' && ch_prev == '/'){
+						attron(COLOR_PAIR(3));
+						mvaddch(line_num, col_num - 1, '/');
+						mvaddch(line_num, col_num++, '/');
+						attroff(COLOR_PAIR(3));
+						comment_flag = 1;
+					}
+					
+					else{
+						attron(COLOR_PAIR(6));
+						mvaddch(line_num, col_num++, '#');
+						attron(COLOR_PAIR(6));
+						comment_flag = 2;
+					}
 		       		continue;
 		        	
 		        }
@@ -175,13 +195,17 @@ void print_line_ncurses(line l, int line_num, int type){
 
 		move(line_num, 0);
 		clrtoeol();
+		int offset = 1;
 		while(p){
 		    for(int i=0; i<NODES_SIZE; i++){
 		        if(i==p->gap_left && p->gap_size != 0){
 		            i=p->gap_right;
 		            continue;
 		        }
-		        mvaddch(line_num, col_num++, p->arr[i]);
+		        if(offset)
+		        	offset--;
+		        else
+		        	mvaddch(line_num, col_num++, p->arr[i]);
 		    }
 		    p = p->next;
 		}

@@ -146,7 +146,7 @@ void insert_character(buffer *b, int line_no, int position, char data){
 
 	if(data == '\n'){
 	
-        lines_node* newnode = (lines_node*)malloc(sizeof(lines_node*));
+        lines_node* newnode = (lines_node*)malloc(sizeof(lines_node));
         if(newnode == NULL)
             return;
         init_lines_node(newnode);

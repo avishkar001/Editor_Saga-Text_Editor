@@ -156,8 +156,7 @@ int main(int argc, char **argv){
 				
 			case KEY_F(5):
 				save_file(&b);
-				endwin();
-                return 0;
+				change = PAGE_CHANGE;
 				break;
 				
 			case KEY_F(6):
