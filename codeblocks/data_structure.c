@@ -104,6 +104,7 @@ void init_buffer(buffer *b, int size, char* filename){
     b->fptr = fopen(filename, "r");
     b->fprev = fopen("fprev.txt", "w+");
     b->fnext = fopen("fnext.txt", "w+");
+    b->line_offset = 0;
     b->filename = (char*)malloc(sizeof(char)*(strlen(filename)+1));
     strcpy(b->filename, filename);
     

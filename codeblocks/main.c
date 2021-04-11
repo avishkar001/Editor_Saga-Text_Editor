@@ -217,9 +217,13 @@ int main(int argc, char **argv){
 			
 				
 			case '\n':
-				write_line(b.fnext, b.head_array[(b.head_index - 1 + b.size)%b.size]);
+				if(line_no == b.size -1)
+					write_line(b.fprev, b.head_array[b.head_index]);
+				else	
+					write_line(b.fnext, b.head_array[(b.head_index - 1 + b.size)%b.size]);
 				insert_character(&b, line_no, col_no, ch);
-				line_no++;
+				if(line_no != b.size -1)
+					line_no++;
 				col_no = 0;
 				change = PAGE_CHANGE;
 				break;
@@ -230,10 +234,18 @@ int main(int argc, char **argv){
 		            change = LINE_CHANGE;
 				}
 		        else{
+		        	if(line_no){
 		        	int temp = b.head_array[(b.head_index + line_no - 1)%b.size].line_size;
 		            backspace(&b, line_no, col_no);
 		            col_no = temp;
 		            line_no--;
+		            }
+		            else{
+						load_prev_line(&b);
+		            	int temp = b.head_array[b.head_index].line_size;
+				        backspace(&b, line_no, col_no);
+				        col_no = temp;
+		            }
 		            change = PAGE_CHANGE;
 		        }
 			break;
@@ -246,7 +258,7 @@ int main(int argc, char **argv){
 		        if(change == PAGE_CHANGE)
 		        	print_page_ncurses(b);
 		        else if(change == LINE_CHANGE)
-		        	print_line_ncurses(b.head_array[(line_no + b.head_index) % b.size], line_no, b.filetype);	
+		        	print_line_ncurses(b.head_array[(line_no + b.head_index) % b.size], line_no, b.filetype, b.line_offset);	
 		        print_loc(line_no, col_no);
 		        move(line_no, col_no);
     }

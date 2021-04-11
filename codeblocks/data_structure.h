@@ -29,6 +29,7 @@ typedef struct buffer{
     FILE *fptr, *fprev, *fnext;
     int filetype;
     char* filename;
+    int line_offset;
 }buffer;
 
 

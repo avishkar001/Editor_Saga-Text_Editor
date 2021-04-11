@@ -145,7 +145,7 @@ void insert_character(buffer *b, int line_no, int position, char data){
     lines_node* node = move_cursor(l->head, position);
 
 	if(data == '\n'){
-	
+		
         lines_node* newnode = (lines_node*)malloc(sizeof(lines_node));
         if(newnode == NULL)
             return;
@@ -167,29 +167,38 @@ void insert_character(buffer *b, int line_no, int position, char data){
         */
         
 		b->head_array[(line_no + b->head_index) % b->size].line_size = get_line_size(b->head_array[(line_no + b->head_index) % b->size]);
-		//printf("%d", get_line_size(b->head_array[(line_no + b->head_index) % b->size]));
-		
-        int i = b->head_index - 1;
-		while(i != line_no + b->head_index + 1){
-			if(i == -1){
-				i = b->size - 1;
-				continue;
+		if(line_no == b->size -1){
+			
+			int i = b->head_index;
+			while(i != (b->size + b->head_index - 1) % b->size){
+				if(i == b->size){
+					i = 0;
+				}
+				b->head_array[i] = b->head_array[(i + 1 + b->size) % b->size];
+				i++;
 			}
-			//b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i - 1 + b->head_index) % b->size];
-			b->head_array[i] = b->head_array[(i - 1 + b->size) % b->size];
-			i--;
+			
+			b->head_array[b->head_index - 1].head = newnode;
+        	b->head_array[b->head_index - 1].line_size = get_line_size(b->head_array[b->head_index - 1]);
 		}
+		else{
+			
+			int i = (b->head_index - 1) % b->size;
+			while(i != (line_no + b->head_index + 1) % b->size){
+				if(i == -1){
+					i = (b->head_index + b->size - 1) % b->size;
+					continue;
+				}
+				b->head_array[i] = b->head_array[(i - 1 + b->size) % b->size];
+				i--;
+			}
+		
 		
         b->head_array[(line_no + b->head_index + 1) % b->size].head = newnode;
         b->head_array[(line_no + b->head_index + 1) % b->size].line_size = get_line_size(b->head_array[(line_no + b->head_index + 1) % b->size]);
-        //set_line_size(&b->head_array[(line_no + b->head_index + 1) % b->size]);
+        }
         
-		
-        
-        
-        //for(int i = (b->head_index + b->size - 1) % ; i >= (line_no + b->head_index + i) % b->size ; i--)
-                //b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i - 1 + b->head_index) % b->size];
-                return;
+        return;
     }
 
     if(node->gap_size == 0){
@@ -225,21 +234,24 @@ void backspace(buffer *b, int line_no, int position){
 
 
 	if(position == 0){
-		if(line_no > 0){
-			lines_node* p = b->head_array[((line_no - 1) + b->head_index) % b->size].head;
-			
-			while(p->next)
-				p = p->next;
-			
-			p->next = b->head_array[(line_no + b->head_index) % b->size].head;
-			b->head_array[((line_no - 1) + b->head_index) % b->size].line_size += b->head_array[(line_no + b->head_index) % b->size].line_size;
-			for(int i = 0; i < (b->size - line_no); i++)
-                b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i + 1 + b->head_index) % b->size];
-            b->head_index = (b->head_index - 1 + b->size) % b->size;
-            b->head_array[b->head_index].head = NULL; 
-            b->head_array[b->head_index].line_size = 0;
-            load_next_line(b);
+		if(line_no == 0){
+			line_no++;
 		}
+		
+		lines_node* p = b->head_array[((line_no - 1) + b->head_index) % b->size].head;
+		
+		while(p->next)
+			p = p->next;
+		
+		p->next = b->head_array[(line_no + b->head_index) % b->size].head;
+		b->head_array[((line_no - 1) + b->head_index) % b->size].line_size += b->head_array[(line_no + b->head_index) % b->size].line_size;
+		for(int i = 0; i < (b->size - line_no); i++)
+            b->head_array[(line_no + b->head_index + i) % b->size] = b->head_array[(line_no + i + 1 + b->head_index) % b->size];
+        b->head_index = (b->head_index - 1 + b->size) % b->size;
+        b->head_array[b->head_index].head = NULL; 
+        b->head_array[b->head_index].line_size = 0;
+        load_next_line(b);
+		
 	}
 
 

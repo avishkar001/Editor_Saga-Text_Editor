@@ -10,7 +10,7 @@ void print_loc(int x, int y){
         mvprintw(37, 0, "x: %d y: %d", x, y);
 }
 
-void print_line_ncurses(line l, int line_num, int type){
+void print_line_ncurses(line l, int line_num, int type, int line_offset){
 
 	if(l.head == NULL){
 		start_color();
@@ -195,15 +195,14 @@ void print_line_ncurses(line l, int line_num, int type){
 
 		move(line_num, 0);
 		clrtoeol();
-		int offset = 1;
 		while(p){
 		    for(int i=0; i<NODES_SIZE; i++){
 		        if(i==p->gap_left && p->gap_size != 0){
 		            i=p->gap_right;
 		            continue;
 		        }
-		        if(offset)
-		        	offset--;
+		        if(line_offset)
+		        	line_offset--;
 		        else
 		        	mvaddch(line_num, col_num++, p->arr[i]);
 		    }
@@ -218,6 +217,6 @@ void print_line_ncurses(line l, int line_num, int type){
 void print_page_ncurses(buffer b){
 
     for(int i=0; i < b.size; i++){
-        print_line_ncurses(b.head_array[(b.head_index + i) % b.size], i, b.filetype);
+        print_line_ncurses(b.head_array[(b.head_index + i) % b.size], i, b.filetype, b.line_offset);
     }
 }
