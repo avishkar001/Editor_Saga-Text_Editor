@@ -4,60 +4,127 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-BUFFER_SIZE	data_structure.c	6;"	d	file:
-BUFFER_SIZE	data_structure.h	4;"	d
+ALPHABET_SIZE	trie.h	4;"	d
+BUFFER_SIZE	sample.c	6;"	d	file:
+CHAR_TO_INDEX	trie.h	5;"	d
+CTRL	main.c	9;"	d	file:
+CURSOR_CHANGE	main.c	12;"	d	file:
+C_FILE	data_structure.h	9;"	d
 DATA_STRUCTURE_H_INCLUDED	data_structure.h	2;"	d
-DEFAULT_GAP_SIZE	data_structure.c	8;"	d	file:
 DEFAULT_GAP_SIZE	data_structure.h	6;"	d
+DEFAULT_GAP_SIZE	sample.c	8;"	d	file:
+F2_SHORTCUT	shortcuts.h	1;"	d
+F3_SHORTCUT	shortcuts.h	2;"	d
+F4_SHORTCUT	shortcuts.h	3;"	d
 FUNCTION_H_INCLUDED	function.h	2;"	d
 GAP_BUFFER_H_INCLUDED	gap_buffer.h	2;"	d
 GUI_H_INCLUDED	gui.h	2;"	d
-NODES_SIZE	data_structure.c	7;"	d	file:
+LINE_CHANGE	main.c	13;"	d	file:
 NODES_SIZE	data_structure.h	5;"	d
-WINDOWS	data_structure.c	9;"	d	file:
+NODES_SIZE	sample.c	7;"	d	file:
+PAGE_CHANGE	main.c	14;"	d	file:
+TEXT_FILE	data_structure.h	10;"	d
+TRIE_H_INCLUDED	trie.h	2;"	d
+TrieNode	trie.h	/^struct TrieNode$/;"	s
 WINDOWS	data_structure.h	7;"	d
+WINDOWS	sample.c	9;"	d	file:
 append_in_line	data_structure.c	/^void append_in_line(line *l, lines_node *new){$/;"	f
-arr	data_structure.h	/^    char* arr;$/;"	m	struct:lines_node
+append_in_line	sample.c	/^void append_in_line(line *l, lines_node *new){$/;"	f
+arr	data_structure.h	/^    char *arr;$/;"	m	struct:lines_node
+arr	sample.c	/^    char* arr;$/;"	m	struct:lines_node	file:
 backspace	function.c	/^void backspace(buffer *b, int line_no, int position){$/;"	f
+backspace	sample.c	/^void backspace(buffer *b, int line_no, int position) {$/;"	f
 buffer	data_structure.h	/^typedef struct buffer{$/;"	s
 buffer	data_structure.h	/^}buffer;$/;"	t	typeref:struct:buffer
+buffer	sample.c	/^typedef struct buffer{$/;"	s	file:
+buffer	sample.c	/^}buffer;$/;"	t	typeref:struct:buffer	file:
+children	trie.h	/^	struct TrieNode *children[ALPHABET_SIZE];$/;"	m	struct:TrieNode	typeref:struct:TrieNode::TrieNode
 destroy_line	data_structure.c	/^void destroy_line(line* l){$/;"	f
+destroy_line	sample.c	/^void destroy_line(line* l){$/;"	f
+filename	data_structure.h	/^    char* filename;$/;"	m	struct:buffer
+filetype	data_structure.h	/^    int filetype;$/;"	m	struct:buffer
 fnext	data_structure.h	/^    FILE *fptr, *fprev, *fnext;$/;"	m	struct:buffer
 fprev	data_structure.h	/^    FILE *fptr, *fprev, *fnext;$/;"	m	struct:buffer
 fptr	data_structure.h	/^    FILE *fptr, *fprev, *fnext;$/;"	m	struct:buffer
 gap_left	data_structure.h	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node
+gap_left	sample.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
 gap_right	data_structure.h	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node
+gap_right	sample.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
 gap_size	data_structure.h	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node
+gap_size	sample.c	/^    int gap_left,gap_right, gap_size;$/;"	m	struct:lines_node	file:
+getNode	trie.c	/^struct TrieNode *getNode(void)$/;"	f
+get_line_size	data_structure.c	/^int get_line_size(line l){$/;"	f
 head	data_structure.h	/^    lines_node* head;$/;"	m	struct:line
+head	sample.c	/^    lines_node* head;$/;"	m	struct:line	file:
 head_array	data_structure.h	/^    line *head_array;$/;"	m	struct:buffer
+head_array	sample.c	/^    line head_array[BUFFER_SIZE];$/;"	m	struct:buffer	file:
 head_index	data_structure.h	/^    int head_index;$/;"	m	struct:buffer
+head_index	sample.c	/^    int head_index;$/;"	m	struct:buffer	file:
 init_buffer	data_structure.c	/^void init_buffer(buffer *b, int size, char* filename){$/;"	f
+init_buffer	sample.c	/^void init_buffer(buffer *b){$/;"	f
 init_line	data_structure.c	/^void init_line(line* l){$/;"	f
+init_line	sample.c	/^void init_line(line* l){$/;"	f
 init_lines_node	data_structure.c	/^void init_lines_node(lines_node* l){$/;"	f
-insert_character	function.c	/^void insert_character(line *l, int position, char data){$/;"	f
+init_lines_node	sample.c	/^void init_lines_node(lines_node* l){$/;"	f
+init_trie	trie.c	/^void init_trie(struct TrieNode *root){$/;"	f
+insert	trie.c	/^void insert(struct TrieNode *root, const char *key)$/;"	f
+insert_character	function.c	/^void insert_character(buffer *b, int line_no, int position, char data){$/;"	f
+insert_character	sample.c	/^void insert_character(line *l, int position, char data){$/;"	f
 insert_in_line	data_structure.c	/^void insert_in_line(line *l, char* arr, int len){$/;"	f
+insert_in_line	sample.c	/^void insert_in_line(line *l, char* arr, int len){$/;"	f
+insert_string	function.c	/^void insert_string(buffer *b, int line_no, int position, char* data, int datalen){$/;"	f
+isEndOfWord	trie.h	/^	bool isEndOfWord;$/;"	m	struct:TrieNode
+is_comment	function.c	/^int is_comment(buffer *b, int line_no){$/;"	f
+last_character	function.c	/^char last_character(buffer *b, int line_no){$/;"	f
 left	gap_buffer.c	/^void left(lines_node* node, int position){$/;"	f
+left	sample.c	/^void left(lines_node* node, int position)  $/;"	f
 line	data_structure.h	/^typedef struct line{$/;"	s
 line	data_structure.h	/^} line;$/;"	t	typeref:struct:line
+line	sample.c	/^typedef struct line{$/;"	s	file:
+line	sample.c	/^} line;$/;"	t	typeref:struct:line	file:
+line_offset	data_structure.h	/^    int line_offset;$/;"	m	struct:buffer
 line_size	data_structure.h	/^    int line_size;$/;"	m	struct:line
+line_size	sample.c	/^    int line_size;$/;"	m	struct:line	file:
 lines_node	data_structure.h	/^typedef struct lines_node{$/;"	s
 lines_node	data_structure.h	/^}lines_node;$/;"	t	typeref:struct:lines_node
+lines_node	sample.c	/^typedef struct lines_node{$/;"	s	file:
+lines_node	sample.c	/^}lines_node;$/;"	t	typeref:struct:lines_node	file:
 load_fullnode	data_structure.c	/^void load_fullnode(lines_node* l){$/;"	f
+load_fullnode	sample.c	/^void load_fullnode(lines_node* l){$/;"	f
 load_next_line	function.c	/^void load_next_line(buffer *b){$/;"	f
+load_next_line	sample.c	/^void load_next_line(buffer *b, FILE *fprev, FILE *fnext, FILE *fmain) {    $/;"	f
 load_prev_line	function.c	/^void load_prev_line(buffer *b){$/;"	f
+load_prev_line	sample.c	/^void load_prev_line(buffer *b, FILE *fprev, FILE *fnext) {$/;"	f
 main	main.c	/^int main(int argc, char **argv){$/;"	f
+main	sample.c	/^int main(){$/;"	f
 move_cursor	gap_buffer.c	/^lines_node* move_cursor(lines_node* node, int position){$/;"	f
+move_cursor	sample.c	/^lines_node* move_cursor(lines_node* node, int position){$/;"	f
 next	data_structure.h	/^    struct lines_node *next;$/;"	m	struct:lines_node	typeref:struct:lines_node::lines_node
+next	sample.c	/^    struct lines_node *next;$/;"	m	struct:lines_node	typeref:struct:lines_node::lines_node	file:
 print_buffer	data_structure.c	/^void print_buffer(buffer b){$/;"	f
+print_buffer	sample.c	/^void print_buffer(buffer b){$/;"	f
 print_line	data_structure.c	/^void print_line(line l){$/;"	f
-print_line_ncurses	gui.c	/^void print_line_ncurses(line l, int line_num){$/;"	f
+print_line	sample.c	/^void print_line(line l){$/;"	f
+print_line_ncurses	gui.c	/^void print_line_ncurses(line l, int line_num, int type, int line_offset){$/;"	f
+print_line_ncurses	sample.c	/^void print_line_ncurses(line l, int line_num){$/;"	f
 print_loc	gui.c	/^void print_loc(int x, int y){$/;"	f
+print_loc	sample.c	/^void print_loc(int x, int y) {$/;"	f
 print_node	data_structure.c	/^void print_node(lines_node node){$/;"	f
+print_node	sample.c	/^void print_node(lines_node node){$/;"	f
 print_page_ncurses	gui.c	/^void print_page_ncurses(buffer b){$/;"	f
+print_page_ncurses	sample.c	/^void print_page_ncurses(buffer b){$/;"	f
 read_file_firsttime	function.c	/^void read_file_firsttime(buffer* b){$/;"	f
+read_file_firsttime	sample.c	/^void read_file_firsttime(FILE* fptr, buffer* b){$/;"	f
 right	gap_buffer.c	/^void right(lines_node* node, int position){$/;"	f
+right	sample.c	/^void right(lines_node* node, int position)  $/;"	f
+save_file	function.c	/^void save_file(buffer *b){$/;"	f
+search	trie.c	/^bool search(struct TrieNode *root, const char *key)$/;"	f
 set_line_size	data_structure.c	/^void set_line_size(line* l){$/;"	f
+set_line_size	sample.c	/^void set_line_size(line* l){$/;"	f
 size	data_structure.h	/^    int size;$/;"	m	struct:buffer
 write_buffer	data_structure.c	/^void write_buffer(FILE* f, buffer b){$/;"	f
+write_buffer	sample.c	/^void write_buffer(FILE* f, buffer b){$/;"	f
 write_line	data_structure.c	/^void write_line(FILE* f, line l){$/;"	f
+write_line	sample.c	/^void write_line(FILE* f, line l){$/;"	f
 write_node	data_structure.c	/^void write_node(FILE *f, lines_node node){$/;"	f
+write_node	sample.c	/^void write_node(FILE *f, lines_node node){$/;"	f

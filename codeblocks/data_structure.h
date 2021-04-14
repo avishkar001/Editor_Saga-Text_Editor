@@ -8,7 +8,8 @@
 
 #define C_FILE 0
 #define TEXT_FILE 1
-
+#define READ_ONLY 'r'
+#define READ_AND_WRITE 'w'
 #include<stdio.h>
 
 typedef struct lines_node{
@@ -30,6 +31,7 @@ typedef struct buffer{
     int filetype;
     char* filename;
     int line_offset;
+    char mode;
 }buffer;
 
 

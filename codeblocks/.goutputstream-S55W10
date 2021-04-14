@@ -107,27 +107,16 @@ void init_buffer(buffer *b, int size, char* filename){
 	int returnval = 0;
 	returnval = access(filename, W_OK);
 	//printf("%d", returnval);
-	if (returnval == 0){
+	if (returnval == 0)
 		b->fptr = fopen(filename, "r");
-		b->mode = READ_AND_WRITE;
-	}
 	else
 	{
-		if (errno == ENOENT){
-			b->fptr = fopen(filename, "w+");
-			b->mode = READ_AND_WRITE;
-		}
-		else{
-			returnval = access(filename, R_OK);
-			if (returnval == 0){
-				b->fptr = fopen(filename, "r");
-				b->mode = READ_ONLY;
-			}
-			else if (errno == EACCES){
-				printf("Can't access file\n");
-				exit(1);
-			}
-		}
+	if (errno == ENOENT)
+		b->fptr = fopen(filename, "w+");
+	else if (errno == EACCES)
+		printf("%c", 'f');
+	else
+		printf("%c", 'e');
 	}
     
     
@@ -146,7 +135,7 @@ void init_buffer(buffer *b, int size, char* filename){
 
 
 void destroy_line(line* l){
-	if(l == NULL)
+	if(l.head == NULL)
 		return;
     lines_node *p = l->head, *q = NULL;
 

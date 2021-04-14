@@ -61,12 +61,12 @@ void save_file(buffer *b){
         fputc(c, fsave);
         c = fgetc(b->fptr);
     }
-    /*
-    fcloseall();
+    
+    
     remove(b->filename);
     rename("save.txt", b->filename);
     
-	
+	/*
 	int flag = 0;
 	while(ftell(b->fnext) != 0){
 		load_next_line(b);
@@ -142,8 +142,19 @@ char last_character(buffer *b, int line_no){
 void insert_character(buffer *b, int line_no, int position, char data){
 	
 	line* l = &b->head_array[(line_no + b->head_index) % b->size];
+	
+	if(l->head == NULL){
+	
+		lines_node* newnode = (lines_node*)malloc(sizeof(lines_node));
+        if(newnode == NULL)
+            return;
+        init_lines_node(newnode);
+        l->head = newnode;
+	}
+		
+	
     lines_node* node = move_cursor(l->head, position);
-
+	
 	if(data == '\n'){
 		
         lines_node* newnode = (lines_node*)malloc(sizeof(lines_node));
@@ -178,10 +189,10 @@ void insert_character(buffer *b, int line_no, int position, char data){
 				i++;
 			}
 			
-			b->head_array[b->head_index - 1].head = newnode;
-        	b->head_array[b->head_index - 1].line_size = get_line_size(b->head_array[b->head_index - 1]);
+			b->head_array[(b->head_index - 1+ b->size) % b->size].head = newnode;
+        	b->head_array[(b->head_index - 1+ b->size) % b->size].line_size = get_line_size(b->head_array[(b->head_index - 1+ b->size) % b->size]);
 		}
-		else{
+		else if(b->head_array[(b->head_index - 1 + b->size)%b->size].head != NULL){
 			
 			int i = (b->head_index - 1) % b->size;
 			while(i != (line_no + b->head_index + 1) % b->size){
@@ -230,7 +241,7 @@ void insert_character(buffer *b, int line_no, int position, char data){
 }
 
 // TODO delete line if del position is 0
-void backspace(buffer *b, int line_no, int position){
+char backspace(buffer *b, int line_no, int position){
 
 
 	if(position == 0){
@@ -282,16 +293,17 @@ void backspace(buffer *b, int line_no, int position){
 		if(prev_node)
 			node = prev_node;
 		else
-			return;
+			return CHAR_MIN;
 	}
 	//delete character by growing gap
+    char del = node->arr[node->gap_left - 1];
 	node->gap_left--;
 	node->gap_size++;
     b->head_array[(line_no + b->head_index) % b->size].line_size--;
-	return;
+	return del;
 }
 
-void load_next_line(buffer *b){
+int load_next_line(buffer *b){
 	char ch;
 	int fnext_flag = 0;     //flag showing whether line is to be loaded from fnext file
 	if(fseek(b->fnext, -1, SEEK_CUR) != -1) {          //check if file has line
@@ -301,7 +313,7 @@ void load_next_line(buffer *b){
 	}
     else{
         if((ch = fgetc(b->fptr)) == -1)
-		    return;                //return if file is empty
+		    return 0;                //return if file is empty
 		else
             ungetc(ch, b->fptr);
 	}
@@ -358,15 +370,15 @@ void load_next_line(buffer *b){
 
     b->head_index = (b->head_index + 1) % b->size;        //change start position of cicular array
 
-	return;
+	return 1;
 }
 
-void load_prev_line(buffer *b){
+int load_prev_line(buffer *b){
 	// check if line is present in fprev file
 	if(fseek(b->fprev, -1, SEEK_CUR) != -1)
 		fseek(b->fprev, 1, SEEK_CUR);
 	else
-        return;            //line not present to load previous line
+        return 0;            //line not present to load previous line
 
 	b->head_index = (b->head_index - 1 + b->size) % b->size;
 
@@ -406,7 +418,7 @@ void load_prev_line(buffer *b){
 
     /*after reading a line, set file pointer to beginning indicating line is deleted */
     fseek(b->fprev, position, SEEK_SET);
-	return;
+	return 1;
 }
 
 void read_file_firsttime(buffer* b){
@@ -417,7 +429,7 @@ void read_file_firsttime(buffer* b){
         len = NODES_SIZE;
         char* data = (char*)malloc(sizeof(char)*len);
         len = getline(&data, &len, b->fptr);
-        if(data[len -1] == '\n')
+        if(len>0 && data[len -1] == '\n')
         	len--;
         line* newline = (line*)malloc(sizeof(line));
         init_line(newline);
