@@ -15,8 +15,16 @@ int isEmpty(c_stack c) {
     else
         return 0;
 }
+void push_string(c_stack *c,int operation_id ,position final_position, char* string, int string_len){
+    for (int i = 0; i < string_len; i++){
 
-void push(c_stack *c,int operation_id ,position final_position, char data) {
+        push(c,operation_id ,final_position, string[i]);
+    }
+    
+}
+
+
+void push(c_stack *c,int operation_id ,position final_position, char data){
 
 	if(c->rear != -1 && operation_id == c->q[c->rear]->operation_id){
 		
@@ -24,6 +32,7 @@ void push(c_stack *c,int operation_id ,position final_position, char data) {
 			return;
 			
 		else{
+            //if(operation_id != OPERATION_BACKSPACE_OLDLINE)
 			c->q[c->rear]->final_position = final_position;
 			c->q[c->rear]->len_of_arr += 1;
 			c->q[c->rear]->array[c->q[c->rear]->len_of_arr] = data;
@@ -35,6 +44,7 @@ void push(c_stack *c,int operation_id ,position final_position, char data) {
 		newnode->operation_id = operation_id;
 		newnode->len_of_arr = 0;
 		newnode->array[newnode->len_of_arr] = data;
+        newnode->initial_position = final_position;
 		newnode->final_position = final_position;
 	
     c->rear = ((c->rear) + 1) % c->size;

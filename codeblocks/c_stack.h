@@ -6,6 +6,10 @@
 #define OPERATION_DELETE 3
 #define OPERATION_NEXT_LINE 4
 #define OPERATION_PREV_LINE 5
+#define OPERATION_NEXT_PAGE 6
+#define OPERATION_PREV_PAGE 7
+#define OPERATION_NEWLINE 8
+#define OPERATION_BACKSPACE_OLDLINE 9
 
 typedef struct position{
 	int line_no;
@@ -16,7 +20,7 @@ typedef struct stack_node{
     int operation_id;
     char array[100];
  	int len_of_arr;
- 	position final_position;
+ 	position initial_position, final_position;
 }stack_node;
 
 typedef struct c_stack{
@@ -31,5 +35,6 @@ void init(c_stack *c, int size);
 int isEmpty(c_stack c);
 void push(c_stack *c,int operation_id,position final_position, char data);
 stack_node* pop(c_stack *c);
+void push_string(c_stack *c,int operation_id ,position final_position, char* string, int string_len);
 
 #endif // stack_H_INCLUDED

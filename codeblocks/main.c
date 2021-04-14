@@ -6,9 +6,6 @@
 #include "gui.h"
 #include "shortcuts.h"
 #include "c_stack.h"
-#ifndef CTRL
-#define	CTRL(c)	(c & 037)
-#endif
 
 #define CURSOR_CHANGE 'c'
 #define LINE_CHANGE 'l'
@@ -149,6 +146,11 @@ int main(int argc, char **argv){
 				insert_string(&b, line_no, col_no, F2_SHORTCUT, strlen(F2_SHORTCUT));
 				col_no += 7;
 				change = LINE_CHANGE;
+
+				//for undo
+				cur_position.line_no = line_no;
+				cur_position.col_no = col_no + 2;
+				push_string(&undo, OPERATION_INSERT, cur_position, F2_SHORTCUT, strlen(F2_SHORTCUT));
 				break;
 
 			case KEY_F(3):
@@ -157,6 +159,11 @@ int main(int argc, char **argv){
 				insert_string(&b, line_no, col_no, F3_SHORTCUT, strlen(F3_SHORTCUT));
 				col_no += strlen(F3_SHORTCUT);
 				change = LINE_CHANGE;
+
+				//for undo
+				cur_position.line_no = line_no;
+				cur_position.col_no = col_no;
+				push_string(&undo, OPERATION_INSERT, cur_position, F3_SHORTCUT, strlen(F3_SHORTCUT));
 				break;
 				
 			case KEY_F(4):
@@ -165,6 +172,11 @@ int main(int argc, char **argv){
 				insert_string(&b, line_no, col_no, F4_SHORTCUT, strlen(F4_SHORTCUT));
 				col_no += strlen(F4_SHORTCUT);
 				change = LINE_CHANGE;
+
+				//for undo
+				cur_position.line_no = line_no;
+				cur_position.col_no = col_no;
+				push_string(&undo, OPERATION_INSERT, cur_position, F4_SHORTCUT, strlen(F4_SHORTCUT));
 				break;
 				
 			case KEY_F(5):
@@ -224,6 +236,62 @@ int main(int argc, char **argv){
 					line_no = snode->final_position.line_no;
 					col_no = snode->final_position.col_no + snode->len_of_arr;
 					change = LINE_CHANGE;
+				}else if(snode->operation_id == OPERATION_PREV_LINE){
+					int i = 0;
+					while(i <= snode->len_of_arr){
+						load_next_line(&b);
+						i++;
+					}
+					line_no = snode->final_position.line_no;
+					col_no = snode->final_position.col_no;
+					change = PAGE_CHANGE;
+				}else if(snode->operation_id == OPERATION_NEXT_LINE){
+					int i = 0;
+					while(i <= snode->len_of_arr){
+						load_prev_line(&b);
+						i++;
+					}
+					line_no = snode->final_position.line_no;
+					col_no = snode->final_position.col_no;
+					change = PAGE_CHANGE;
+				}else if(snode->operation_id == OPERATION_NEXT_PAGE){
+					int i = 0;
+					while(i <= snode->len_of_arr){
+						for(int j=0; j<b.size; j++)
+							load_prev_line(&b);
+						i++;
+					}
+					line_no = snode->final_position.line_no;
+					col_no = snode->final_position.col_no;
+					change = PAGE_CHANGE;
+				}else if(snode->operation_id == OPERATION_PREV_PAGE){
+					int i = 0;
+					while(i <= snode->len_of_arr){
+						for(int j=0; j<b.size; j++)
+							load_prev_line(&b);
+						i++;
+					}
+					line_no = snode->final_position.line_no;
+					col_no = snode->final_position.col_no;
+					change = PAGE_CHANGE;
+				}else if(snode->operation_id == OPERATION_NEWLINE){
+					int i = 0;
+					while(i <= snode->len_of_arr){
+						backspace(&b, snode->final_position.line_no - i, snode->final_position.col_no);
+						i++;
+					}
+					line_no = snode->final_position.line_no - snode->len_of_arr;
+					col_no = snode->final_position.col_no;
+					change = PAGE_CHANGE;
+				}else if(snode->operation_id == OPERATION_BACKSPACE_OLDLINE){
+					int i = 0;
+					while(i <= snode->len_of_arr){
+						insert_character(&b, snode->final_position.line_no, snode->final_position.col_no, '\n');
+						i++;
+					}
+					line_no = snode->final_position.line_no + snode->len_of_arr;
+					col_no = snode->final_position.col_no;
+					change = PAGE_CHANGE;
 				}	
 				
 				break;
@@ -232,7 +300,7 @@ int main(int argc, char **argv){
 				//for undo
 				cur_position.line_no = line_no;
 				cur_position.col_no = col_no;
-				push(&undo, 1, cur_position, 'h');
+				push(&undo, OPERATION_NAVIGATE, cur_position, 'h');
 
 		        if (col_no)
 		            col_no--;
@@ -243,7 +311,7 @@ int main(int argc, char **argv){
 				//for undo
 				cur_position.line_no = line_no;
 				cur_position.col_no = col_no;
-				push(&undo, 1, cur_position, 'h');
+				push(&undo, OPERATION_NAVIGATE, cur_position, 'h');
 
 		        if(col_no < b.head_array[(line_no + b.head_index) % b.size].line_size)
 		            col_no++;
@@ -266,9 +334,16 @@ int main(int argc, char **argv){
 		        }
 		        else{
 		        
-		            if(load_next_line(&b))
+		            if(load_next_line(&b)){
 			        	change = PAGE_CHANGE;
-			        else{
+			        	
+						//for undo
+						cur_position.line_no = line_no;
+						cur_position.col_no = col_no;
+						push(&undo, OPERATION_NEXT_LINE, cur_position, ' ');
+					
+					}
+					else{
 			        	change = CURSOR_CHANGE;
 			        	break;
 			        }
@@ -290,9 +365,16 @@ int main(int argc, char **argv){
 
 		        }
 		        else{
-		            if(load_prev_line(&b))
+		            if(load_prev_line(&b)){
 			        	change = PAGE_CHANGE;
-			        else{
+
+						//for undo
+						cur_position.line_no = line_no;
+						cur_position.col_no = col_no;
+						push(&undo, OPERATION_PREV_LINE, cur_position, ' ');
+					
+					}
+					else{
 			        	change = CURSOR_CHANGE;
 			        	break;
 			        }
@@ -302,21 +384,33 @@ int main(int argc, char **argv){
 				break;
 				
 			case KEY_END:
+				//for undo
+				cur_position.line_no = line_no;
+				cur_position.col_no = col_no;
+				push(&undo, OPERATION_NAVIGATE, cur_position, 'h');
+
 				col_no = b.head_array[(line_no + b.head_index) % b.size].line_size;
 				break;
 			
 			case KEY_HOME:
+				//for undo
+				cur_position.line_no = line_no;
+				cur_position.col_no = col_no;
+				push(&undo, OPERATION_NAVIGATE, cur_position, 'h');
+
 				col_no = 0;
 				break;
 				
 			case KEY_NPAGE:
 				for(int i=0; i<b.size; i++)
 					load_next_line(&b);
+				push(&undo, OPERATION_NEXT_PAGE, cur_position, 'h');
 				break;
 					
 			case KEY_PPAGE:
 				for(int i=0; i<b.size; i++)
 					load_prev_line(&b);
+				push(&undo, OPERATION_PREV_PAGE, cur_position, 'h');
 				break;
 				
 			case '\t':
@@ -325,6 +419,11 @@ int main(int argc, char **argv){
 				insert_string(&b, line_no, col_no, "    ", 4);
 				col_no += 4;
 				change = LINE_CHANGE;
+
+				//for undo
+				cur_position.line_no = line_no;
+				cur_position.col_no = col_no;
+				push_string(&undo, OPERATION_INSERT, cur_position, "    ", 4);
 				break;
 				
 			case '\n':
@@ -339,6 +438,11 @@ int main(int argc, char **argv){
 					line_no++;
 				col_no = 0;
 				change = PAGE_CHANGE;
+
+				//for undo
+				cur_position.line_no = line_no;
+				cur_position.col_no = col_no;
+				push(&undo, OPERATION_NEWLINE, cur_position, ' ');
 				break;
 			case KEY_BACKSPACE:
 				if(b.mode == READ_ONLY)
@@ -365,8 +469,14 @@ int main(int argc, char **argv){
 		            	int temp = b.head_array[b.head_index].line_size;
 				        backspace(&b, line_no, col_no);
 				        col_no = temp;
+
 		            }
 		            change = PAGE_CHANGE;
+
+					//for undo
+					cur_position.line_no = line_no;
+					cur_position.col_no = col_no;
+					push(&undo, OPERATION_BACKSPACE_OLDLINE, cur_position, ' ');
 		        }
 			break;
 			default:
