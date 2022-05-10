@@ -1,7 +1,7 @@
-# Editorent - text editor
+# Editor_Saga - text editor
 
 ## Overview:
-Editorent is a texteditor which is capable of opening very large(in GB's) text files
+Editor_Saga is a texteditor which is capable of opening very large(in GB's) text files
 which cannot be opened by editors like vim, gedit, nano, kate like text editors.
 GUI using Ncurses library.
 Additional features like syntax highlighting for C language.
